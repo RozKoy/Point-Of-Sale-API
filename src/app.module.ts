@@ -1,14 +1,15 @@
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { 
   Configuration, 
   TypeOrmConfig 
 } from './config';
-import { AdminModule } from './user/admin/admin.module';
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AppController } from './app.controller';
+import { AdminModule } from './user/admin/admin.module';
+import { CashierModule } from './user/cashier/cashier.module';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { AppService } from './app.service';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useClass: TypeOrmConfig,
-    }), AdminModule,
+    }), AdminModule, CashierModule,
   ],
   controllers: [AppController],
   providers: [AppService],
