@@ -6,6 +6,7 @@ import {
   Configuration, 
   TypeOrmConfig 
 } from './config';
+import { AdminModule } from './user/admin/admin.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -18,7 +19,7 @@ import { AppService } from './app.service';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useClass: TypeOrmConfig,
-    }),
+    }), AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
