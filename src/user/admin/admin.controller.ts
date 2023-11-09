@@ -27,7 +27,7 @@ export class AdminController {
 
 	// CREATE
 	@UseInterceptors(ClassSerializerInterceptor)
-	@Post('create/super')
+	@Post('/create/super')
 	async createSuperAdmin (@Body() createAdminDto: CreateAdminDto): Promise<SerializedAdmin> {
 		const role: AdminRole = AdminRole.SUPERADMIN;
 		const superAdminExists: SerializedAdmin[] = await this.adminService.getAdminByRole(role);

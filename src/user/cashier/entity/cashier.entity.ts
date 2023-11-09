@@ -10,10 +10,10 @@ export class CashierEntity extends ParentEntity {
 	@Column({ length: 36 })
 	author: string;
 
-	@Column()
+	@Column({ unique: true })
 	username: string;
 
-	@Column({ type: 'char', length: 6 })
+	@Column({ type: 'char', length: 6, unique: true })
 	code: string;
 
 	@Column({ type: 'text' })
