@@ -13,12 +13,14 @@ import {
 	UseInterceptors,
 	ClassSerializerInterceptor
 } from '@nestjs/common';
+import { ApiTags, ApiParam } from '@nestjs/swagger';
 
 import { SerializedAdmin } from './type';
 import { AdminService } from './admin.service';
 import { AdminRole } from './entity/admin.entity';
 import { CreateAdminDto, UpdateAdminDto } from './dto';
 
+@ApiTags('Admin')
 @Controller('admin')
 export class AdminController {
 	constructor (
@@ -68,7 +70,7 @@ export class AdminController {
 
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Get('/:id')
-	async getAdminById (@Param() id: string): Promise<SerializedAdmin> {
+	async getAdminById (@Param('id') id: string): Promise<SerializedAdmin> {
 		const role: AdminRole = AdminRole.ADMIN;
 		const admins: SerializedAdmin[] = await this.adminService.getAdminByRole(role);
 		
@@ -85,7 +87,7 @@ export class AdminController {
 	// UPDATE
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Put('/update/:id')
-	async updateAdmin (@Body() updateAdminDto: UpdateAdminDto, @Param() id: string): Promise<SerializedAdmin> {
+	async updateAdmin (@Body() updateAdminDto: UpdateAdminDto, @Param('id') id: string): Promise<SerializedAdmin> {
 		const { email, username, password, image } = updateAdminDto;
 		
 		if (email || username || password || image) {
@@ -105,7 +107,7 @@ export class AdminController {
 
 	// DELETE
 	@Delete('/delete/:id')
-	async deleteAdmin (@Param() id: string): Promise<any> {
+	async deleteAdmin (@Param('id') id: string): Promise<any> {
 		const admin: SerializedAdmin = await this.adminService.getAdminById(id);
 
 		if (admin) {
@@ -117,7 +119,7 @@ export class AdminController {
 
 	// RESTORE
 	@Patch('/restore/:id')
-	async restoreAdmin (@Param() id: string): Promise<any> {
+	async restoreAdmin (@Param('id') id: string): Promise<any> {
 		const admin: SerializedAdmin = await this.adminService.getTrashedAdminById(id);
 		if (admin) {
 			if (admin.delete_at !== null) {

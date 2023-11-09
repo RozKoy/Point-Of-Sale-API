@@ -2,7 +2,10 @@ import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { CreateCashierDto } from './dto';
+import { 
+	CreateCashierDto, 
+	UpdateCashierDto 
+} from './dto';
 import { CashierEntity } from './entity/cashier.entity';
 
 @Injectable()
@@ -53,5 +56,37 @@ export class CashierService {
 		}
 
 		return null;
+	}
+
+	async getTrashedCashierById (id: string): Promise<CashierEntity | null> {
+		const cashier: CashierEntity = await this.cashierRepository.findOne({ where: { id }, withDeleted: true });
+
+		if (cashier) {
+			return cashier;
+		}
+
+		return null;
+	}
+
+	// UPDATE
+	async updateCashier (id: string, updateCashierDto: UpdateCashierDto): Promise<CashierEntity> {
+		const cashier: CashierEntity = await this.cashierRepository.findOneBy({ id });
+
+		const { username, image } = updateCashierDto;
+
+		cashier.image = image ? image : cashier.image;
+		cashier.username = username ? username : cashier.username;
+
+		return await this.cashierRepository.save(cashier);
+	}
+
+	// DELETE
+	async deleteCashierById (id: string): Promise<any> {
+		return await this.cashierRepository.softDelete(id);
+	}
+
+	// RESTORE
+	async restoreCashierById (id: string): Promise<any> {
+		return await this.cashierRepository.restore(id);
 	}
 }

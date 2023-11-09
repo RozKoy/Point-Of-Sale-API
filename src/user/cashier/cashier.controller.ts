@@ -2,17 +2,24 @@ import {
 	Get,
 	Post,
 	Body,
+	Patch,
 	Param,
+	Delete,
 	Inject,
 	Controller,
 	HttpStatus,
 	HttpException
 } from '@nestjs/common';
+import { ApiTags, ApiParam } from '@nestjs/swagger';
 
-import { CreateCashierDto } from './dto';
+import { 
+	CreateCashierDto, 
+	UpdateCashierDto 
+} from './dto';
 import { cashierCode } from 'src/utils/otp';
 import { CashierService } from './cashier.service';
 
+@ApiTags('Cashier')
 @Controller('cashier')
 export class CashierController {
 	constructor (
@@ -54,8 +61,9 @@ export class CashierController {
 		return await this.cashierService.getAllCashier();
 	}
 
+	@ApiParam({ name: 'id', description: 'id', required: true })
 	@Get('/:id')
-	async getCashierById (@Param() id: string) {
+	async getCashierById (@Param('id') id: string) {
 		const cashier = await this.cashierService.getCashierById(id);
 
 		if (cashier) {
@@ -65,5 +73,49 @@ export class CashierController {
 		throw new HttpException('Kasir tidak ditemukan', HttpStatus.NOT_FOUND);
 	}
 
-	
+	// UPDATE
+	@Post('/update/:id')
+	async updateCashier (@Body() updateCashierDto: UpdateCashierDto, @Param('id') id: string) {
+		const { username, image } = updateCashierDto;
+
+		if (username || image) {
+			const cashier = await this.cashierService.getCashierById(id);
+
+			if (cashier) {
+				return await this.cashierService.updateCashier(id, updateCashierDto);
+			}
+
+			throw new HttpException('Kasir tidak ditemukan', HttpStatus.NOT_FOUND);		
+		}
+
+		throw new HttpException('Tidak ada data perubahan', HttpStatus.BAD_REQUEST);
+	}
+
+	// DELETE
+	@Delete('/delete/:id')
+	async deleteCashier (@Param('id') id: string) {
+		const cashier = await this.cashierService.getCashierById(id);
+
+		if (cashier) {
+			return await this.cashierService.deleteCashierById(id);
+		}
+
+		throw new HttpException('Tidak dapat mengahapus akun cashier', HttpStatus.NOT_FOUND);		
+	}
+
+	// RESTORE
+	@Patch('/restore/:id')
+	async restoreCashier (@Param('id') id: string) {
+		const cashier = await this.cashierService.getTrashedCashierById(id);
+
+		if (cashier) {
+			if (cashier.delete_at !== null) {
+				return await this.cashierService.restoreCashierById(id);
+			}
+
+			throw new HttpException('Tidak dapat mengembalikan akun', HttpStatus.NOT_ACCEPTABLE);
+		}
+
+		throw new HttpException('Admin tidak ditemukan', HttpStatus.NOT_FOUND);
+	}
 }

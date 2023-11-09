@@ -1,6 +1,5 @@
 import { Configuration } from './configuration';
 import { TypeOrmConfig } from './typeormConfig';
-import { JwtATConfigService } from './jwtAtConfig';
-import { JwtRTConfigService } from './jwtRtConfig';
+import { JwtConfigService } from './jwt-config';
 
-export { Configuration, TypeOrmConfig, JwtATConfigService, JwtRTConfigService };
+export { Configuration, TypeOrmConfig, JwtConfigService };
