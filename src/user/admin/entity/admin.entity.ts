@@ -5,6 +5,7 @@ import {
 } from 'typeorm';
 
 import { ParentEntity } from 'src/entity/parent';
+import { comparePassword } from 'src/utils/bcryptjs';
 import { AdminAuthEntity } from 'src/auth/admin-auth/entity/admin-auth.entity';
 
 export enum AdminRole {
@@ -35,6 +36,10 @@ export class AdminEntity extends ParentEntity {
 	@Column({ type: 'enum', enum: AdminRole, default: AdminRole.ADMIN })
 	role: AdminRole;
 
-	@OneToMany(() => AdminAuthEntity, (auth) => auth.admin, { eager: true })
+	@OneToMany(() => AdminAuthEntity, (auth) => auth.admin)
 	refresh_tokens: AdminAuthEntity[];
+
+	async validatePassword (password: string) {
+		return await comparePassword(password, this.password, this.salt);
+	}
 }

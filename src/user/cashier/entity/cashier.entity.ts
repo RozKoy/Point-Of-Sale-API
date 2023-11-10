@@ -21,6 +21,6 @@ export class CashierEntity extends ParentEntity {
 	@Column({ type: 'text' })
 	image: string;
 
-	@OneToMany(() => CashierAuthEntity, (auth) => auth.cashier, { eager: true })
+	@OneToMany(() => CashierAuthEntity, (auth) => auth.cashier)
 	refresh_tokens: CashierAuthEntity[];
 }

@@ -10,7 +10,7 @@ import {
 	HttpStatus,
 	HttpException
 } from '@nestjs/common';
-import { ApiTags, ApiParam } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 
 import { 
 	CreateCashierDto, 
@@ -61,7 +61,6 @@ export class CashierController {
 		return await this.cashierService.getAllCashier();
 	}
 
-	@ApiParam({ name: 'id', description: 'id', required: true })
 	@Get('/:id')
 	async getCashierById (@Param('id') id: string) {
 		const cashier = await this.cashierService.getCashierById(id);

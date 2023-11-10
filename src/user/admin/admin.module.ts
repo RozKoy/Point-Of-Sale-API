@@ -14,6 +14,7 @@ const providers = [
 
 @Module({
   providers,
+  exports: providers,
   controllers: [AdminController],
   imports: [TypeOrmModule.forFeature([AdminEntity])]
 })

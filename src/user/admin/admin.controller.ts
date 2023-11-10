@@ -13,12 +13,12 @@ import {
 	UseInterceptors,
 	ClassSerializerInterceptor
 } from '@nestjs/common';
-import { ApiTags, ApiParam } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 
 import { SerializedAdmin } from './type';
 import { AdminService } from './admin.service';
-import { AdminRole } from './entity/admin.entity';
 import { CreateAdminDto, UpdateAdminDto } from './dto';
+import { AdminEntity, AdminRole } from './entity/admin.entity';
 
 @ApiTags('Admin')
 @Controller('admin')
@@ -32,14 +32,15 @@ export class AdminController {
 	@Post('/create/super')
 	async createSuperAdmin (@Body() createAdminDto: CreateAdminDto): Promise<SerializedAdmin> {
 		const role: AdminRole = AdminRole.SUPERADMIN;
-		const superAdminExists: SerializedAdmin[] = await this.adminService.getAdminByRole(role);
+		const superAdminExists: AdminEntity[] = await this.adminService.getAdminByRole(role);
 
 		if (superAdminExists.length === 0) {
 			const { email } = createAdminDto;
-			const adminExists: SerializedAdmin | null = await this.adminService.getAdminByEmail(email);
+			const adminExists: AdminEntity | null = await this.adminService.getAdminByEmail(email);
 
 			if (!adminExists) {
-				return await this.adminService.createAdmin(createAdminDto, role);
+				const admin: AdminEntity = await this.adminService.createAdmin(createAdminDto, role);
+				return new SerializedAdmin(admin);
 			}
 		} 
 
@@ -50,11 +51,12 @@ export class AdminController {
 	@Post('/create')
 	async createAdmin (@Body() createAdminDto: CreateAdminDto): Promise<SerializedAdmin> {
 		const { email } = createAdminDto;
-		const adminExists: SerializedAdmin | null = await this.adminService.getAdminByEmail(email);
+		const adminExists: AdminEntity | null = await this.adminService.getAdminByEmail(email);
 
 		if (!adminExists) {
 			const role: AdminRole = AdminRole.ADMIN;
-			return await this.adminService.createAdmin(createAdminDto, role);
+			const admin: AdminEntity = await this.adminService.createAdmin(createAdminDto, role);
+			return new SerializedAdmin(admin);
 		}
 
 		throw new HttpException('Tidak dapat membuat akun admin', HttpStatus.CONFLICT);
@@ -65,19 +67,20 @@ export class AdminController {
 	@Get()
 	async getAllAdmin (): Promise<SerializedAdmin[]> {
 		const role: AdminRole = AdminRole.ADMIN;
-		return await this.adminService.getAdminByRole(role);
+		const admins: AdminEntity[] = await this.adminService.getAdminByRole(role);
+		return admins.map((admin) => new SerializedAdmin(admin));
 	}
 
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Get('/:id')
 	async getAdminById (@Param('id') id: string): Promise<SerializedAdmin> {
 		const role: AdminRole = AdminRole.ADMIN;
-		const admins: SerializedAdmin[] = await this.adminService.getAdminByRole(role);
+		const admins: AdminEntity[] = await this.adminService.getAdminByRole(role);
 		
 		if (admins.length !== 0) {
-			const admin: SerializedAdmin | null = admins.find((admin) => admin.id === id);
+			const admin: AdminEntity | null = admins.find((admin) => admin.id === id);
 			if (admin) {
-				return admin;
+				return new SerializedAdmin(admin);
 			}
 		}
 
@@ -91,11 +94,11 @@ export class AdminController {
 		const { email, username, password, image } = updateAdminDto;
 		
 		if (email || username || password || image) {
-			const admin: SerializedAdmin | null = await this.adminService.getAdminById(id);
+			const admin: AdminEntity | null = await this.adminService.getAdminById(id);
 			if (admin) {
-				const updatedAdmin: SerializedAdmin | null = await this.adminService.updateAdmin(id, updateAdminDto);
+				const updatedAdmin: AdminEntity | null = await this.adminService.updateAdmin(id, updateAdminDto);
 				if (updatedAdmin) {
-					return updatedAdmin;
+					return new SerializedAdmin(updatedAdmin);
 				}
 			}
 
@@ -108,7 +111,7 @@ export class AdminController {
 	// DELETE
 	@Delete('/delete/:id')
 	async deleteAdmin (@Param('id') id: string): Promise<any> {
-		const admin: SerializedAdmin = await this.adminService.getAdminById(id);
+		const admin: AdminEntity = await this.adminService.getAdminById(id);
 
 		if (admin) {
 			return await this.adminService.deleteAdminById(id);
@@ -120,7 +123,7 @@ export class AdminController {
 	// RESTORE
 	@Patch('/restore/:id')
 	async restoreAdmin (@Param('id') id: string): Promise<any> {
-		const admin: SerializedAdmin = await this.adminService.getTrashedAdminById(id);
+		const admin: AdminEntity = await this.adminService.getTrashedAdminById(id);
 		if (admin) {
 			if (admin.delete_at !== null) {
 				return await this.adminService.restoreAdminById(id);

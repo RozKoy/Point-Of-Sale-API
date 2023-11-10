@@ -2,7 +2,6 @@ import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { SerializedAdmin } from './type';
 import { encodePassword } from 'src/utils/bcryptjs';
 import { CreateAdminDto, UpdateAdminDto } from './dto';
 import { AdminEntity, AdminRole } from './entity/admin.entity';
@@ -13,8 +12,23 @@ export class AdminService {
 		@InjectRepository(AdminEntity) private readonly adminRepository: Repository<AdminEntity>
 	) {}
 
+	// UTILS
+	async validateAdmin (email: string, password: string): Promise<AdminEntity | null> {
+		const admin: AdminEntity = await this.adminRepository.findOneBy({ email });
+
+		if (admin) {
+			const checkPassword: boolean = await admin.validatePassword(password);
+
+			if (checkPassword) {
+				return admin;
+			}
+		}
+
+		return null;
+	}
+
 	// CREATE
-	async createAdmin (createAdminDto: CreateAdminDto, role: AdminRole): Promise<SerializedAdmin> {
+	async createAdmin (createAdminDto: CreateAdminDto, role: AdminRole): Promise<AdminEntity> {
 		const { password, salt } = encodePassword(createAdminDto.password);
 		const makeSuperAdmin: AdminEntity = await this.adminRepository.create({ 
 			...createAdminDto, 
@@ -24,50 +38,50 @@ export class AdminService {
 		});
 		const newSuperAdmin: AdminEntity = await this.adminRepository.save(makeSuperAdmin)
 
-		return new SerializedAdmin(newSuperAdmin);
+		return newSuperAdmin;
 	}
 
 	// READ
-	async getAdminByEmail (email: string): Promise<SerializedAdmin | null> {
+	async getAdminByEmail (email: string): Promise<AdminEntity | null> {
 		const admin: AdminEntity = await this.adminRepository.findOneBy({ email });
 		
 		if (admin) {
-			return new SerializedAdmin(admin);
+			return admin;
 		}
 		return null;
 	}
 
-	async getAdminByRole (role: AdminRole): Promise<SerializedAdmin[]> {
+	async getAdminByRole (role: AdminRole): Promise<AdminEntity[]> {
 		const admins: AdminEntity[] = await this.adminRepository.findBy({ role });
 
 		if (admins.length !== 0) {
-			return admins.map((admin) => new SerializedAdmin(admin));
+			return admins;
 		}
 
 		return [];
 	}
-
-	async getAdminById (id: string): Promise<SerializedAdmin | null> {
+new
+	async getAdminById (id: string): Promise<AdminEntity | null> {
 		const admin: AdminEntity = await this.adminRepository.findOneBy({ id });
 		
 		if (admin) {
-			return new SerializedAdmin(admin);
+			return admin;
 		}
 		return null;	
 	}
 
-	async getTrashedAdminById (id: string): Promise<SerializedAdmin | null> {
+	async getTrashedAdminById (id: string): Promise<AdminEntity | null> {
 		const admin: AdminEntity = await this.adminRepository.findOne({ where: { id }, withDeleted: true });
 
 		if (admin) {
-			return new SerializedAdmin(admin);
+			return admin;
 		}
 
 		return null;
 	}
 
 	// UPDATE
-	async updateAdmin (id: string, updateAdminDto: UpdateAdminDto): Promise<SerializedAdmin> {
+	async updateAdmin (id: string, updateAdminDto: UpdateAdminDto): Promise<AdminEntity> {
 		const admin: AdminEntity = await this.adminRepository.findOneBy({ id });
 
 		const { email, username, image, password } = updateAdminDto;
@@ -83,7 +97,7 @@ export class AdminService {
 		}
 
 		const updatedAdmin: AdminEntity = await this.adminRepository.save(admin);
-		return new SerializedAdmin(updatedAdmin);
+		return updatedAdmin;
 	}
 
 	// DELETE
