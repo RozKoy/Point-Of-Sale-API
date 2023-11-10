@@ -10,6 +10,7 @@ import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { AdminModule } from './user/admin/admin.module';
 import { CashierModule } from './user/cashier/cashier.module';
+import { AdminAuthModule } from './auth/admin-auth/admin-auth.module';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { CashierModule } from './user/cashier/cashier.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useClass: TypeOrmConfig,
-    }), AdminModule, CashierModule,
+    }), AdminModule, CashierModule, AdminAuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

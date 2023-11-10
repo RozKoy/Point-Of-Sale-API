@@ -1,9 +1,11 @@
 import { 
 	Entity, 
-	Column
+	Column,
+	OneToMany
 } from 'typeorm';
 
 import { ParentEntity } from 'src/entity/parent';
+import { AdminAuthEntity } from 'src/auth/admin-auth/entity/admin-auth.entity';
 
 export enum AdminRole {
 	ADMIN = 'admin',
@@ -32,4 +34,7 @@ export class AdminEntity extends ParentEntity {
 
 	@Column({ type: 'enum', enum: AdminRole, default: AdminRole.ADMIN })
 	role: AdminRole;
+
+	@OneToMany(() => AdminAuthEntity, (auth) => auth.admin, { eager: true })
+	refresh_tokens: AdminAuthEntity[];
 }
