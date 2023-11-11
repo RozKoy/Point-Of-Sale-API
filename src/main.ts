@@ -40,9 +40,10 @@ async function bootstrap() {
 
   // Use swagger module
   const config = new DocumentBuilder()
-    .setTitle('Point of Sale')
     .setDescription('Point of Sale API Documentation')
+    .setTitle('Point of Sale')
     .setVersion('0.0.1')
+    .addBearerAuth()
     .build();
 
   const swaggerDoc = SwaggerModule.createDocument(app, config);
