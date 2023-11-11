@@ -8,6 +8,7 @@ import {
 } from './otp';
 import { JwtGuard } from './jwt.guard';
 import { GetUser } from './get-user.decorator';
+import { HttpExceptionFilter } from './exception.filters';
 
 export {
 	getOTP,
@@ -15,5 +16,6 @@ export {
 	JwtGuard,
 	cashierCode,
 	encodePassword,
-	comparePassword
+	comparePassword,
+	HttpExceptionFilter
 };
