@@ -5,16 +5,19 @@ import { CashierService } from './cashier.service';
 import { CashierEntity } from './entity/cashier.entity';
 import { CashierController } from './cashier.controller';
 
+
 const providers = [
   {
     provide: 'CASHIER_SERVICE',
     useClass: CashierService
   }
 ];
+const controllers = [CashierController];
+const imports = [TypeOrmModule.forFeature([CashierEntity])];
 
 @Module({
+  imports,
   providers,
-  controllers: [CashierController],
-  imports: [TypeOrmModule.forFeature([CashierEntity])]
+  controllers,
 })
 export class CashierModule {}

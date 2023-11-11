@@ -9,9 +9,10 @@ const providers = [
     useClass: CashierAuthService
   }
 ];
+const controllers = [CashierAuthController];
 
 @Module({
   providers,
-  controllers: [CashierAuthController]
+  controllers
 })
 export class CashierAuthModule {}

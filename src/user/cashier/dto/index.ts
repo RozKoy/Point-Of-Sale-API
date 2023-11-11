@@ -4,7 +4,8 @@ import {
 	IsOptional
 } from 'class-validator';
 import { 
-	ApiProperty, 
+	PartialType,
+	ApiProperty,
 	ApiPropertyOptional 
 } from '@nestjs/swagger';
 
@@ -19,13 +20,4 @@ export class CreateCashierDto {
 	image: string;
 }
 
-export class UpdateCashierDto {
-	@ApiPropertyOptional()
-	@IsOptional()
-	@MaxLength(255, { message: 'Nama pengguna tidak boleh melebihi $constraint1 karakter' })
-	username?: string;
-
-	@ApiPropertyOptional()
-	@IsOptional()
-	image?: string;
-}
+export class UpdateCashierDto extends PartialType(CreateCashierDto) {}

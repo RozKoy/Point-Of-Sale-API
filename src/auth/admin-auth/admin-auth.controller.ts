@@ -19,7 +19,12 @@ import {
 	OtpVerificationDto,
 	RefreshAccessTokenDto 
 } from './dto';
-import { JwtGuard } from 'src/utils';
+import { 
+	JwtGuard,
+	RESPONSE,
+	RESPONSE_I
+} from 'src/utils';
+import { SerializedAdmin } from 'src/user/admin/type';
 import { AdminAuthService } from './admin-auth.service';
 
 @ApiTags('Admin Authentication')
@@ -31,46 +36,43 @@ export class AdminAuthController {
 
 	// UTILS
 	@Post('/login')
-	async login (@Body() loginDto: LoginDto): Promise<void> {
+	async login (@Body() loginDto: LoginDto): Promise<RESPONSE_I> {
 		const { email, password } = loginDto;
 		const response: LoginResponseI | null = await this.adminAuthService.login(email, password);
 
 		if (response) {
-			throw new HttpException(response, HttpStatus.OK);
+			return RESPONSE(response, 'Berhasil melakukan login', HttpStatus.OK);
 		}
 
 		throw new HttpException('Email atau password salah', HttpStatus.UNAUTHORIZED);
 	}
 
 	@Post('/forget-password')
-	async forgetPassword (@Body() emailDto: EmailDto): Promise<void> {
+	async forgetPassword (@Body() emailDto: EmailDto): Promise<RESPONSE_I> {
 		const { email } = emailDto;
 		const admin = await this.adminAuthService.sendOtp(email);
 
 		if (admin) {
-			delete admin.id;
-			delete admin.salt;
-			delete admin.password;
-			throw new HttpException(admin, HttpStatus.ACCEPTED);
+			return RESPONSE(new SerializedAdmin(admin), 'Berhasil mengirimkan kode otp', HttpStatus.ACCEPTED);
 		}
 
 		throw new HttpException('Admin tidak ditemukan', HttpStatus.NOT_FOUND);
 	}
 
 	@Post('/otp-verification')
-	async otpVerification (@Body() otpVerificationDto: OtpVerificationDto): Promise<void> {
+	async otpVerification (@Body() otpVerificationDto: OtpVerificationDto): Promise<RESPONSE_I> {
 		const { email, otp } = otpVerificationDto;
 		const check: boolean = await this.adminAuthService.checkOtp(email, otp);
 
 		if (check) {
-			throw new HttpException(otpVerificationDto, HttpStatus.OK);	
+			return RESPONSE(otpVerificationDto, 'Kode otp terverifikasi', HttpStatus.OK);	
 		}
 
 		throw new HttpException('Kode otp tidak sesuai', HttpStatus.NOT_FOUND);	
 	}
 
 	@Post('/create-new-password')
-	async newPassword (@Body() newPasswordDto: NewPasswordDto) {
+	async newPassword (@Body() newPasswordDto: NewPasswordDto): Promise<RESPONSE_I> {
 		const { password, password_confirmation } = newPasswordDto;
 
 		if (password === password_confirmation) {
@@ -81,7 +83,7 @@ export class AdminAuthController {
 				const makeNewPassword: string | null = await this.adminAuthService.changeAdminPassword(email, password);
 
 				if (makeNewPassword) {
-					throw new HttpException(makeNewPassword, HttpStatus.CREATED);			
+					return RESPONSE(makeNewPassword, 'Berhasil membuat kata sandi baru', HttpStatus.CREATED);
 				}
 			}
 

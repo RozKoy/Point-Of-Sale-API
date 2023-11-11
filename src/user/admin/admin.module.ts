@@ -11,11 +11,13 @@ const providers = [
     useClass: AdminService
   }
 ];
+const controllers = [AdminController];
+const imports = [TypeOrmModule.forFeature([AdminEntity])];
 
 @Module({
+  imports,
   providers,
-  exports: providers,
-  controllers: [AdminController],
-  imports: [TypeOrmModule.forFeature([AdminEntity])]
+  controllers,
+  exports: providers
 })
 export class AdminModule {}

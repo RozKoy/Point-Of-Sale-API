@@ -15,7 +15,8 @@ export class AdminAuthService {
 	constructor (
 		private readonly jwtService: JwtService,
 		@Inject('ADMIN_SERVICE') private readonly adminService: AdminService,
-		@InjectRepository(AdminAuthEntity) private readonly adminAuthRepository: Repository<AdminAuthEntity>
+		@InjectRepository(AdminAuthEntity) 
+		private readonly adminAuthRepository: Repository<AdminAuthEntity>
 	) {}
 
 	// UTILS
@@ -120,8 +121,8 @@ export class AdminAuthService {
 		}
 	}
 
-	async revokeRefreshToken (id: string) {
-		const adminAuth = await this.adminAuthRepository.findOneBy({ id });
+	async revokeRefreshToken (id: string): Promise<any | null> {
+		const adminAuth: AdminAuthEntity = await this.adminAuthRepository.findOneBy({ id });
 
 		if (adminAuth) {
 			return await this.deleteAdminAuth(id);
@@ -144,7 +145,7 @@ export class AdminAuthService {
 	}
 
 	// DELETE
-	async deleteAdminAuth (id: string) {
+	async deleteAdminAuth (id: string): Promise<any> {
 		return await this.adminAuthRepository.softDelete(id);
 	}
 }

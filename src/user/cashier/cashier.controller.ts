@@ -12,12 +12,14 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
-import { 
-	CreateCashierDto, 
-	UpdateCashierDto 
-} from './dto';
-import { cashierCode } from 'src/utils';
+import {
+	RESPONSE,
+	RESPONSE_I,
+	cashierCode 
+} from 'src/utils';
 import { CashierService } from './cashier.service';
+import { CashierEntity } from './entity/cashier.entity';
+import { CreateCashierDto, UpdateCashierDto } from './dto';
 
 @ApiTags('Cashier')
 @Controller('cashier')
@@ -28,10 +30,10 @@ export class CashierController {
 
 	// CREATE
 	@Post('/create')
-	async createCashier (@Body() createCashierDto: CreateCashierDto) {
+	async createCashier (@Body() createCashierDto: CreateCashierDto): Promise<RESPONSE_I> {
 		const { username } = createCashierDto;
 
-		let cashier = await this.cashierService.getCashierByUsername(username);
+		let cashier: CashierEntity | null = await this.cashierService.getTrashedCashierByUsername(username);
 
 		if (!cashier) {
 			let check: boolean = false;
@@ -39,7 +41,7 @@ export class CashierController {
 			
 			for (let i = 1; i <= 3; i++) {
 				code = cashierCode();
-				cashier = await this.cashierService.getCashierByCode(code);
+				cashier = await this.cashierService.getTrashedCashierByCode(code);
 				if (!cashier) {
 					check = true;
 					break;
@@ -48,7 +50,8 @@ export class CashierController {
 
 			if (check && code) {
 				const author = '480ac695-8bfe-42b8-9035-56a7d90c75a7';
-				return await this.cashierService.createCashier(author, code, createCashierDto);
+				cashier = await this.cashierService.createCashier(author, code, createCashierDto);
+				return RESPONSE(cashier, 'Berhasil membuat akun kasir', HttpStatus.OK);
 			}
 		}
 
@@ -57,16 +60,22 @@ export class CashierController {
 
 	// READ
 	@Get()
-	async getAllCashier () {
-		return await this.cashierService.getAllCashier();
+	async getAllCashier (): Promise<RESPONSE_I> {
+		const cashier: CashierEntity[] = await this.cashierService.getAllCashier();
+		
+		if (cashier.length !== 0) {
+			return RESPONSE(cashier, '', HttpStatus.OK);
+		}
+
+		return RESPONSE(cashier, 'Tidak ada data akun kasir', HttpStatus.NO_CONTENT);
 	}
 
 	@Get('/:id')
-	async getCashierById (@Param('id') id: string) {
-		const cashier = await this.cashierService.getCashierById(id);
+	async getCashierById (@Param('id') id: string): Promise<RESPONSE_I> {
+		const cashier: CashierEntity | null = await this.cashierService.getCashierById(id);
 
 		if (cashier) {
-			return cashier;
+			return RESPONSE(cashier, 'Berhasil mendapatkan data akun kasir', HttpStatus.OK);	
 		}
 
 		throw new HttpException('Kasir tidak ditemukan', HttpStatus.NOT_FOUND);
@@ -74,14 +83,18 @@ export class CashierController {
 
 	// UPDATE
 	@Post('/update/:id')
-	async updateCashier (@Body() updateCashierDto: UpdateCashierDto, @Param('id') id: string) {
+	async updateCashier (
+		@Body() updateCashierDto: UpdateCashierDto, @Param('id') id: string
+	): Promise<RESPONSE_I> 
+	{
 		const { username, image } = updateCashierDto;
 
 		if (username || image) {
-			const cashier = await this.cashierService.getCashierById(id);
+			const cashier: CashierEntity | null = await this.cashierService.getCashierById(id);
 
 			if (cashier) {
-				return await this.cashierService.updateCashier(id, updateCashierDto);
+				const updatedCashier: CashierEntity = await this.cashierService.updateCashier(id, updateCashierDto);
+				return RESPONSE(updatedCashier, 'Berhasil mengubah data akun kasir', HttpStatus.OK);
 			}
 
 			throw new HttpException('Kasir tidak ditemukan', HttpStatus.NOT_FOUND);		
@@ -92,11 +105,12 @@ export class CashierController {
 
 	// DELETE
 	@Delete('/delete/:id')
-	async deleteCashier (@Param('id') id: string) {
-		const cashier = await this.cashierService.getCashierById(id);
+	async deleteCashier (@Param('id') id: string): Promise<RESPONSE_I> {
+		const cashier: CashierEntity | null = await this.cashierService.getCashierById(id);
 
 		if (cashier) {
-			return await this.cashierService.deleteCashierById(id);
+			const response: any = await this.cashierService.deleteCashierById(id);
+			return RESPONSE(response, 'Berhasil menghapus akun kasir', HttpStatus.OK);
 		}
 
 		throw new HttpException('Tidak dapat mengahapus akun cashier', HttpStatus.NOT_FOUND);		
@@ -104,12 +118,13 @@ export class CashierController {
 
 	// RESTORE
 	@Patch('/restore/:id')
-	async restoreCashier (@Param('id') id: string) {
-		const cashier = await this.cashierService.getTrashedCashierById(id);
+	async restoreCashier (@Param('id') id: string): Promise<RESPONSE_I> {
+		const cashier: CashierEntity | null = await this.cashierService.getTrashedCashierById(id);
 
 		if (cashier) {
 			if (cashier.delete_at !== null) {
-				return await this.cashierService.restoreCashierById(id);
+				const response: any = await this.cashierService.restoreCashierById(id);
+				return RESPONSE(response, 'Berhasil mengembalikan akun kasir', HttpStatus.OK);
 			}
 
 			throw new HttpException('Tidak dapat mengembalikan akun', HttpStatus.NOT_ACCEPTABLE);

@@ -2,12 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { 
-  Configuration, 
-  TypeOrmConfig 
-} from './config';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
+import { Configuration, TypeOrmConfig } from './config';
 import { AdminModule } from './user/admin/admin.module';
 import { CashierModule } from './user/cashier/cashier.module';
 import { ProductModule } from './product/product/product.module';

@@ -10,6 +10,11 @@ import { AdminModule } from 'src/user/admin/admin.module';
 import { AdminAuthEntity } from './entity/admin-auth.entity';
 import { AdminAuthController } from './admin-auth.controller';
 
+const imports = [
+  AdminModule,
+  TypeOrmModule.forFeature([AdminAuthEntity]),
+  JwtModule.registerAsync({ imports: [ConfigModule], useClass: JwtConfigService })
+];
 const providers = [
   {
     provide: 'AUTH_ADMIN_SERVICE',
@@ -20,17 +25,11 @@ const providers = [
     useClass: JwtStrategy
   }
 ];
+const controllers = [AdminAuthController];
 
 @Module({
+  imports,
   providers,
-  controllers: [AdminAuthController],
-  imports: [
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useClass: JwtConfigService,
-    }),
-    TypeOrmModule.forFeature([AdminAuthEntity]),
-    AdminModule,
-  ],
+  controllers
 })
 export class AdminAuthModule {}

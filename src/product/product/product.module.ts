@@ -9,9 +9,10 @@ const providers = [
 		useClass: ProductService
 	}
 ];
+const controllers = [ProductController];
 
 @Module({
   providers,
-  controllers: [ProductController]
+  controllers,
 })
 export class ProductModule {}

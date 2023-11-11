@@ -9,7 +9,8 @@ import { AdminEntity, AdminRole } from './entity/admin.entity';
 @Injectable()
 export class AdminService {
 	constructor (
-		@InjectRepository(AdminEntity) private readonly adminRepository: Repository<AdminEntity>
+		@InjectRepository(AdminEntity) 
+		private readonly adminRepository: Repository<AdminEntity>
 	) {}
 
 	// UTILS
@@ -29,64 +30,46 @@ export class AdminService {
 
 	async setOtp (email: string, otp: string | null): Promise<string> {
 		const admin: AdminEntity = await this.adminRepository.findOneBy({ email });
-
+		
 		admin.otp = otp;
-
 		await this.adminRepository.save(admin);
+		
 		return otp;
 	}
 
 	// CREATE
 	async createAdmin (createAdminDto: CreateAdminDto, role: AdminRole): Promise<AdminEntity> {
 		const { password, salt } = encodePassword(createAdminDto.password);
-		const makeSuperAdmin: AdminEntity = await this.adminRepository.create({ 
+		const makeAdmin: AdminEntity = await this.adminRepository.create({ 
 			...createAdminDto, 
 			role,
 			salt,
 			password
 		});
-		const newSuperAdmin: AdminEntity = await this.adminRepository.save(makeSuperAdmin)
+		const newAdmin: AdminEntity = await this.adminRepository.save(makeAdmin);
 
-		return newSuperAdmin;
+		return newAdmin;
 	}
 
 	// READ
 	async getAdminByEmail (email: string): Promise<AdminEntity | null> {
-		const admin: AdminEntity = await this.adminRepository.findOneBy({ email });
-		
-		if (admin) {
-			return admin;
-		}
-		return null;
+		return await this.adminRepository.findOneBy({ email });
+	}
+
+	async getTrashedAdminByEmail (email: string): Promise<AdminEntity | null> {
+		return await this.adminRepository.findOne({ where: { email }, withDeleted: true });
 	}
 
 	async getAdminByRole (role: AdminRole): Promise<AdminEntity[]> {
-		const admins: AdminEntity[] = await this.adminRepository.findBy({ role });
-
-		if (admins.length !== 0) {
-			return admins;
-		}
-
-		return [];
+		return await this.adminRepository.findBy({ role });
 	}
 	
 	async getAdminById (id: string): Promise<AdminEntity | null> {
-		const admin: AdminEntity = await this.adminRepository.findOneBy({ id });
-		
-		if (admin) {
-			return admin;
-		}
-		return null;	
+		return await this.adminRepository.findOneBy({ id });
 	}
 
 	async getTrashedAdminById (id: string): Promise<AdminEntity | null> {
-		const admin: AdminEntity = await this.adminRepository.findOne({ where: { id }, withDeleted: true });
-
-		if (admin) {
-			return admin;
-		}
-
-		return null;
+		return await this.adminRepository.findOne({ where: { id }, withDeleted: true });
 	}
 
 	// UPDATE
@@ -95,9 +78,9 @@ export class AdminService {
 
 		const { email, username, image, password } = updateAdminDto;
 		
-		admin.username = username ? username : admin.username;
 		admin.email = email ? email : admin.email;
 		admin.image = image ? image : admin.image;
+		admin.username = username ? username : admin.username;
 
 		if (password) {
 			const newPassword: { password: string, salt: string } = encodePassword(password);
@@ -105,8 +88,7 @@ export class AdminService {
 			admin.salt = newPassword.salt;
 		}
 
-		const updatedAdmin: AdminEntity = await this.adminRepository.save(admin);
-		return updatedAdmin;
+		return await this.adminRepository.save(admin);
 	}
 
 	// DELETE

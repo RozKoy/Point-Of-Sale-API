@@ -5,10 +5,7 @@ import {
 	HttpException,
 	ExceptionFilter
 } from '@nestjs/common';
-import {
-	Request,
-	Response
-} from 'express';
+import { Request, Response } from 'express';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -20,20 +17,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
 		let data: string | any = exception.getResponse();
 		const statusCode: HttpStatus | number = exception.getStatus();
 
-		if (statusCode >= 200 && statusCode <= 299) {
-			response.status(statusCode).json({
-				data,
-				statusCode
-			});
-		} else {
-			if (statusCode === HttpStatus.UNAUTHORIZED && typeof(data) === 'object') {
-				data = 'Anda tidak memiliki akses';
-			}
-			
-			response.status(statusCode).json({
-				statusCode,
-				message: data
-			});
+		if (statusCode === HttpStatus.UNAUTHORIZED && typeof(data) === 'object') {
+			data = 'Anda tidak memiliki akses';
 		}
+		
+		response.status(statusCode).json({
+			statusCode,
+			message: data
+		});
 	}
 }
