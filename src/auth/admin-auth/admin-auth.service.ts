@@ -3,10 +3,11 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Inject, Injectable } from '@nestjs/common';
 
+import { getOTP } from 'src/utils';
 import { TokenExpiredError } from 'jsonwebtoken';
-import { LoginDto, RefreshAccessTokenDto } from './dto';
 import { AdminService } from 'src/user/admin/admin.service';
 import { AdminAuthEntity } from './entity/admin-auth.entity';
+import { LoginResponseI, RefreshAccessTokenDto } from './dto';
 import { AdminEntity } from 'src/user/admin/entity/admin.entity';
 
 @Injectable()
@@ -18,15 +19,14 @@ export class AdminAuthService {
 	) {}
 
 	// UTILS
-	async login (loginDto: LoginDto): Promise<{ access_token: string, refresh_token: string } | null> {
-		const { email, password } = loginDto;
-		const admin: AdminEntity = await this.adminService.validateAdmin(email, password);
+	async login (email: string, password: string): Promise<LoginResponseI | null> {
+		const admin: AdminEntity | null = await this.adminService.validateAdmin(email, password);
 
 		if (admin) {
 			const access_token: string = await this.createAccessToken(admin);
 			const refresh_token: string = await this.createRefreshToken(admin);
 
-			return { access_token, refresh_token };
+			return { access_token, refresh_token } as LoginResponseI;
 		}
 
 		return null;
@@ -49,6 +49,43 @@ export class AdminAuthService {
 		};
 
 		return await this.jwtService.signAsync(payload, { expiresIn });
+	}
+
+	async sendOtp (email: string): Promise<AdminEntity | null> {
+		const admin: AdminEntity | null = await this.adminService.getAdminByEmail(email);
+
+		if (admin) {
+			const otp: string = await this.adminService.setOtp(email, getOTP());
+			// Send OTP
+			return admin;
+		}
+
+		return null;
+	}
+
+	async checkOtp (email: string, otp: string): Promise<boolean> {
+		const admin: AdminEntity | null = await this.adminService.getAdminByEmail(email);
+
+		if (admin) {
+			if (admin.otp === otp) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	async changeAdminPassword (email: string, password: string): Promise<string | null> {
+		const admin: AdminEntity | null = await this.adminService.getAdminByEmail(email);
+
+		if (admin) {
+			await this.adminService.updateAdmin(admin.id, { password });
+			await this.adminService.setOtp(email, null);
+
+			return email;
+		}	
+
+		return null;
 	}
 
 	async refreshAccessToken (refreshAccessTokenDto: RefreshAccessTokenDto): Promise<any> {

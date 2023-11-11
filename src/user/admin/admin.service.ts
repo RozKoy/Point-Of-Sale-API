@@ -27,6 +27,15 @@ export class AdminService {
 		return null;
 	}
 
+	async setOtp (email: string, otp: string | null): Promise<string> {
+		const admin: AdminEntity = await this.adminRepository.findOneBy({ email });
+
+		admin.otp = otp;
+
+		await this.adminRepository.save(admin);
+		return otp;
+	}
+
 	// CREATE
 	async createAdmin (createAdminDto: CreateAdminDto, role: AdminRole): Promise<AdminEntity> {
 		const { password, salt } = encodePassword(createAdminDto.password);
