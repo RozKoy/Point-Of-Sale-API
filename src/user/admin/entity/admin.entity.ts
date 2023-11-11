@@ -4,8 +4,8 @@ import {
 	OneToMany
 } from 'typeorm';
 
+import { comparePassword } from 'src/utils';
 import { ParentEntity } from 'src/entity/parent';
-import { comparePassword } from 'src/utils/bcryptjs';
 import { AdminAuthEntity } from 'src/auth/admin-auth/entity/admin-auth.entity';
 
 export enum AdminRole {

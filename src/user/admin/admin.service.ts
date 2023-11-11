@@ -2,7 +2,7 @@ import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { encodePassword } from 'src/utils/bcryptjs';
+import { encodePassword } from 'src/utils';
 import { CreateAdminDto, UpdateAdminDto } from './dto';
 import { AdminEntity, AdminRole } from './entity/admin.entity';
 

@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
-import { JwtGuard } from 'src/utils/jwt.guard';
+import { JwtGuard } from 'src/utils';
 import { AdminAuthService } from './admin-auth.service';
 import { LoginDto, RefreshAccessTokenDto } from './dto';
 

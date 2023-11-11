@@ -16,7 +16,7 @@ import {
 	CreateCashierDto, 
 	UpdateCashierDto 
 } from './dto';
-import { cashierCode } from 'src/utils/otp';
+import { cashierCode } from 'src/utils';
 import { CashierService } from './cashier.service';
 
 @ApiTags('Cashier')
