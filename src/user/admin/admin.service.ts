@@ -60,7 +60,7 @@ export class AdminService {
 
 		return [];
 	}
-new
+	
 	async getAdminById (id: string): Promise<AdminEntity | null> {
 		const admin: AdminEntity = await this.adminRepository.findOneBy({ id });
 		

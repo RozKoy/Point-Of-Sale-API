@@ -83,6 +83,16 @@ export class AdminAuthService {
 		}
 	}
 
+	async revokeRefreshToken (id: string) {
+		const adminAuth = await this.adminAuthRepository.findOneBy({ id });
+
+		if (adminAuth) {
+			return await this.deleteAdminAuth(id);
+		}
+
+		return null;
+	}
+
 	// CREATE
 	async createAdminAuth (admin: AdminEntity, expiresIn: number): Promise<AdminAuthEntity> {
 		const expired_at: Date = new Date();
@@ -94,5 +104,10 @@ export class AdminAuthService {
 		});
 
 		return await this.adminAuthRepository.save(makeRefreshToken);	
+	}
+
+	// DELETE
+	async deleteAdminAuth (id: string) {
+		return await this.adminAuthRepository.softDelete(id);
 	}
 }

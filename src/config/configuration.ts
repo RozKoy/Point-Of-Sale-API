@@ -1,3 +1,5 @@
+import { ExtractJwt } from 'passport-jwt';
+
 export const Configuration = () => ({
 	database: {
 		port: process.env.DB_PORT || 3306,
@@ -17,5 +19,10 @@ export const Configuration = () => ({
 		signOptions: {
 			expiresIn: process.env.JWT_EXPIRES_IN || '1s',
 		},
+	},
+	jwtStrategy: {
+		jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+		ignoreExpiration: process.env.JWT_STRATEGY_EXPIRATION || false,
+		secretOrKey: process.env.JWT_SECRET || 'jwtsecret',
 	}
 })

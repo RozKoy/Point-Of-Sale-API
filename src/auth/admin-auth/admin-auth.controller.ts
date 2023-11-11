@@ -1,15 +1,19 @@
 import { 
 	Post,
 	Body,
+	Patch,
+	Param,
 	Inject, 
+	UseGuards,
 	Controller,
 	HttpStatus,
 	HttpException
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
-import { LoginDto, RefreshAccessTokenDto } from './dto';
+import { JwtGuard } from 'src/utils/jwt.guard';
 import { AdminAuthService } from './admin-auth.service';
+import { LoginDto, RefreshAccessTokenDto } from './dto';
 
 @ApiTags('Admin Authentication')
 @Controller('auth/admin')
@@ -44,5 +48,11 @@ export class AdminAuthController {
 		}
 
 		throw new HttpException('Refresh token tidak terverifikasi', HttpStatus.NOT_FOUND);
+	}
+
+	@Patch('/:id/revoke')
+	@UseGuards(JwtGuard)
+	async revokeRefreshToken (@Param('id') id: string) {
+		await this.adminAuthService.revokeRefreshToken(id);
 	}
 }
