@@ -14,7 +14,6 @@ import { ApiTags } from '@nestjs/swagger';
 import { 
 	EmailDto,
 	LoginDto,
-	LoginResponseI,
 	NewPasswordDto,
 	OtpVerificationDto,
 	RefreshAccessTokenDto 
@@ -22,7 +21,8 @@ import {
 import { 
 	JwtGuard,
 	RESPONSE,
-	RESPONSE_I
+	RESPONSE_I,
+	LoginResponseI
 } from 'src/utils';
 import { SerializedAdmin } from 'src/user/admin/type';
 import { AdminAuthService } from './admin-auth.service';
@@ -98,7 +98,7 @@ export class AdminAuthController {
 
 
 	@Post('/refresh-access-token')
-	async refreshAccessToken (@Body() refreshAccessTokenDto: RefreshAccessTokenDto): Promise<LoginResponseI> {
+	async refreshAccessToken (@Body() refreshAccessTokenDto: RefreshAccessTokenDto): Promise<RESPONSE_I> {
 		const response: any = await this.adminAuthService.refreshAccessToken(refreshAccessTokenDto);
 
 		if (response) {
@@ -108,7 +108,7 @@ export class AdminAuthController {
 				throw new HttpException('Oops... Terjadi kesalahan didalam server', HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 			
-			return response;
+			return RESPONSE(response, 'Berhasil memperbarui access token', HttpStatus.OK);
 		}
 
 		throw new HttpException('Refresh token tidak terverifikasi', HttpStatus.NOT_FOUND);
@@ -117,6 +117,12 @@ export class AdminAuthController {
 	@Patch('/:id/revoke')
 	@UseGuards(JwtGuard)
 	async revokeRefreshToken (@Param('id') id: string) {
-		await this.adminAuthService.revokeRefreshToken(id);
+		const response: any | null = await this.adminAuthService.revokeRefreshToken(id);
+		
+		if (response) {
+			return RESPONSE(response, 'Berhasil mencabut refresh token', HttpStatus.ACCEPTED);
+		}
+
+		throw new HttpException('Gagal mencabut refresh token', HttpStatus.NOT_FOUND);
 	}
 }

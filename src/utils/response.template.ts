@@ -1,3 +1,8 @@
+export interface LoginResponseI {
+	access_token: string;
+	refresh_token: string;
+}
+
 export interface RESPONSE_I {
 	data: any;
 	message: string;

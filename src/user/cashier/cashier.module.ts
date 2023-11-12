@@ -19,5 +19,6 @@ const imports = [TypeOrmModule.forFeature([CashierEntity])];
   imports,
   providers,
   controllers,
+  exports: providers
 })
 export class CashierModule {}

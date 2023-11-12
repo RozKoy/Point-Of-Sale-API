@@ -45,11 +45,6 @@ export class OtpVerificationDto extends IntersectionType(EmailDto, OtpDto) {}
 
 export class NewPasswordDto extends IntersectionType(EmailDto, PasswordDto, PasswordConfirmationDto, OtpDto) {}
 
-export interface LoginResponseI {
-	access_token: string;
-	refresh_token: string;
-}
-
 export class RefreshAccessTokenDto {
 	@ApiProperty()
 	@IsNotEmpty({ message: 'Refresh token wajib diisi' })

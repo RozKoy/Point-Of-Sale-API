@@ -1,8 +1,12 @@
+import { 
+	RESPONSE, 
+	RESPONSE_I, 
+	LoginResponseI 
+} from './response.template';
 import { JwtGuard } from './jwt.guard';
 import { getOTP, cashierCode } from './otp';
 import { GetUser } from './get-user.decorator';
 import { HttpExceptionFilter } from './exception.filters';
-import { RESPONSE, RESPONSE_I } from './response.template';
 import { encodePassword, comparePassword } from './bcryptjs';
 
 export {
@@ -12,6 +16,7 @@ export {
 	RESPONSE,
 	RESPONSE_I,
 	cashierCode,
+	LoginResponseI,
 	encodePassword,
 	comparePassword,
 	HttpExceptionFilter
