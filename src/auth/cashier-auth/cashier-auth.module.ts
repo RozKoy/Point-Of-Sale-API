@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { JwtConfigService } from 'src/config';
-import { JwtStrategy } from './utils/jwt.strategy';
+import { CashierJwtStrategy } from './utils/jwt.strategy';
 import { CashierAuthService } from './cashier-auth.service';
 import { CashierModule } from 'src/user/cashier/cashier.module';
 import { CashierAuthEntity } from './entity/cashier-auth.entity';
@@ -21,8 +21,8 @@ const providers = [
     useClass: CashierAuthService
   },
   {
-    provide: 'JWT_STRATEGY',
-    useClass: JwtStrategy
+    provide: 'CASHIER_JWT_STRATEGY',
+    useClass: CashierJwtStrategy
   }
 ];
 const controllers = [CashierAuthController];

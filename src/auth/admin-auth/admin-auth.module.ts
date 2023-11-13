@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { JwtConfigService } from 'src/config';
-import { JwtStrategy } from './utils/jwt.strategy';
+import { AdminJwtStrategy } from './utils/jwt.strategy';
 import { AdminAuthService } from './admin-auth.service';
 import { AdminModule } from 'src/user/admin/admin.module';
 import { AdminAuthEntity } from './entity/admin-auth.entity';
@@ -21,8 +21,8 @@ const providers = [
     useClass: AdminAuthService
   },
   {
-    provide: 'JWT_STRATEGY',
-    useClass: JwtStrategy
+    provide: 'ADMIN_JWT_STRATEGY',
+    useClass: AdminJwtStrategy
   }
 ];
 const controllers = [AdminAuthController];

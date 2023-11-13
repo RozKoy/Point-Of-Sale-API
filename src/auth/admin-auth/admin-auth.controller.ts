@@ -19,9 +19,9 @@ import {
 	RefreshAccessTokenDto 
 } from './dto';
 import { 
-	JwtGuard,
 	RESPONSE,
 	RESPONSE_I,
+	AdminGuard,
 	LoginResponseI
 } from 'src/utils';
 import { SerializedAdmin } from 'src/user/admin/type';
@@ -115,7 +115,7 @@ export class AdminAuthController {
 	}
 
 	@Patch('/:id/revoke')
-	@UseGuards(JwtGuard)
+	@UseGuards(AdminGuard)
 	async revokeRefreshToken (@Param('id') id: string) {
 		const response: any | null = await this.adminAuthService.revokeRefreshToken(id);
 		

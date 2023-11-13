@@ -11,7 +11,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { AdminService } from 'src/user/admin/admin.service';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class AdminJwtStrategy extends PassportStrategy(Strategy, 'ADMIN') {
 	constructor (
 		private configService: ConfigService,
 		@Inject('ADMIN_SERVICE') private readonly adminService: AdminService

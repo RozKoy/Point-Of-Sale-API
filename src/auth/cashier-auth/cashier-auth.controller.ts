@@ -12,9 +12,9 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 
 import { 
-	JwtGuard,
 	RESPONSE, 
 	RESPONSE_I, 
+	CashierGuard,
 	LoginResponseI 
 } from 'src/utils';
 import { CodeDto, RefreshAccessTokenDto } from './dto';
@@ -59,7 +59,7 @@ export class CashierAuthController {
 	}
 
 	@Patch('/:id/revoke')
-	@UseGuards(JwtGuard)
+	@UseGuards(CashierGuard)
 	async revokeRefreshToken (@Param('id') id: string): Promise<RESPONSE_I> {
 		const response: any | null = await this.cashierAuthService.revokeRefreshToken(id);
 		

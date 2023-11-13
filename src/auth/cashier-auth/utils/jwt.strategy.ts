@@ -11,7 +11,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { CashierService } from 'src/user/cashier/cashier.service';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class CashierJwtStrategy extends PassportStrategy(Strategy, 'CASHIER') {
 	constructor (
 		private configService: ConfigService,
 		@Inject('CASHIER_SERVICE') private readonly cashierService: CashierService
