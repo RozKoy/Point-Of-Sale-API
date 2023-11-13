@@ -17,10 +17,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
 		let data: string | any = exception.getResponse();
 		const statusCode: HttpStatus | number = exception.getStatus();
 
-		if (statusCode === HttpStatus.UNAUTHORIZED && typeof(data) === 'object') {
-			data = 'Anda tidak memiliki akses';
+		if (typeof(data) === 'object') {
+			if (statusCode === HttpStatus.UNAUTHORIZED) {
+				data = 'Anda tidak memiliki akses';
+			} else if (statusCode === HttpStatus.INTERNAL_SERVER_ERROR) {
+				data = 'Oops... Terjadi kesalahan internal pada server';
+			} else if (statusCode === HttpStatus.BAD_REQUEST) {
+				if (data.message) {
+					data = data.message;
+				}
+			}
 		}
-		
+
 		response.status(statusCode).json({
 			statusCode,
 			message: data
