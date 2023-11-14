@@ -9,8 +9,8 @@ import { ParentEntity } from 'src/entity/parent';
 import { AdminAuthEntity } from 'src/auth/admin-auth/entity/admin-auth.entity';
 
 export enum AdminRole {
-	ADMIN = 'admin',
-	SUPERADMIN = 'super_admin',
+	ADMIN = 'AANG',
+	SUPERADMIN = 'OPM',
 }
 
 @Entity('admin')

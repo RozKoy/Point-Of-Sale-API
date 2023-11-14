@@ -24,10 +24,11 @@ export class AdminAuthService {
 		const admin: AdminEntity | null = await this.adminService.validateAdmin(email, password);
 
 		if (admin) {
+			const nickname: string = admin.role;
 			const access_token: string = await this.createAccessToken(admin);
 			const refresh_token: string = await this.createRefreshToken(admin);
 
-			return { access_token, refresh_token } as LoginResponseI;
+			return { access_token, refresh_token, nickname } as LoginResponseI;
 		}
 
 		return null;

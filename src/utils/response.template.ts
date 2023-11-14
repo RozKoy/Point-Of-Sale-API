@@ -1,4 +1,5 @@
 export interface LoginResponseI {
+	nickname?: string;
 	access_token: string;
 	refresh_token: string;
 }
