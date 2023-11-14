@@ -13,12 +13,9 @@ export class CashierService {
 	) {}
 
 	// CREATE
-	async createCashier (
-		author: string, code: string, createCashierDto: CreateCashierDto
-	): Promise<CashierEntity> 
-	{
+	async createCashier (code: string, createCashierDto: CreateCashierDto): Promise<CashierEntity> {
 		const makeCashier: CashierEntity = await this.cashierRepository.create({
-			...createCashierDto, code, author
+			...createCashierDto, code
 		});
 
 		return await this.cashierRepository.save(makeCashier);

@@ -9,9 +9,6 @@ import { CashierAuthEntity } from 'src/auth/cashier-auth/entity/cashier-auth.ent
 
 @Entity('cashier')
 export class CashierEntity extends ParentEntity {
-	@Column({ length: 36 })
-	author: string;
-
 	@Column({ unique: true })
 	username: string;
 

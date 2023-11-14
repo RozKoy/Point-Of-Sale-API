@@ -49,8 +49,7 @@ export class CashierController {
 			}
 
 			if (check && code) {
-				const author = '480ac695-8bfe-42b8-9035-56a7d90c75a7';
-				cashier = await this.cashierService.createCashier(author, code, createCashierDto);
+				cashier = await this.cashierService.createCashier(code, createCashierDto);
 				return RESPONSE(cashier, 'Berhasil membuat akun kasir', HttpStatus.OK);
 			}
 		}
