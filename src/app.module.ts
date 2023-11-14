@@ -8,6 +8,7 @@ import { Configuration, TypeOrmConfig } from './config';
 import { AdminModule } from './user/admin/admin.module';
 import { CashierModule } from './user/cashier/cashier.module';
 import { ProductModule } from './product/product/product.module';
+import { CategoryModule } from './product/category/category.module';
 import { AdminAuthModule } from './auth/admin-auth/admin-auth.module';
 import { CashierAuthModule } from './auth/cashier-auth/cashier-auth.module';
 
@@ -24,6 +25,7 @@ import { CashierAuthModule } from './auth/cashier-auth/cashier-auth.module';
     AdminModule, 
     CashierModule, 
     ProductModule,
+    CategoryModule, 
     AdminAuthModule, 
     CashierAuthModule, 
   ],
