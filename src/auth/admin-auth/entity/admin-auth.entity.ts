@@ -1,7 +1,8 @@
 import { 
 	Entity, 
 	Column,
-	ManyToOne
+	ManyToOne,
+	JoinColumn
 } from 'typeorm';
 
 import { ParentEntity } from 'src/entity/parent';
@@ -13,5 +14,6 @@ export class AdminAuthEntity extends ParentEntity {
 	expired_at: Date;
 
 	@ManyToOne(() => AdminEntity, (admin) => admin.refresh_tokens)
+	@JoinColumn({ name: 'admin' })
 	admin: AdminEntity;
 }

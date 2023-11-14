@@ -1,18 +1,22 @@
 import { 
 	Entity, 
-	Column
+	Column,
+	ManyToOne,
+	JoinColumn
 } from 'typeorm';
 
 import { ParentEntity } from 'src/entity/parent';
+import { AdminEntity } from 'src/user/admin/entity/admin.entity';
 
 @Entity('product')
 export class ProductEntity extends ParentEntity {
-	@Column({ length: 36 })
-	author: string;
-
 	@Column({ unique: true })
 	name: string;
 
 	@Column({ type: 'text' })
 	image: string;
+
+	@ManyToOne(() => AdminEntity, (admin) => admin.products)
+	@JoinColumn({ name: 'author' })
+	author: AdminEntity;
 }
