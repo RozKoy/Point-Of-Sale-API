@@ -3,8 +3,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { AdminJwtStrategy } from 'src/utils';
 import { JwtConfigService } from 'src/config';
-import { AdminJwtStrategy } from './utils/jwt.strategy';
 import { AdminAuthService } from './admin-auth.service';
 import { AdminModule } from 'src/user/admin/admin.module';
 import { AdminAuthEntity } from './entity/admin-auth.entity';

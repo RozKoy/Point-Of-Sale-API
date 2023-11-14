@@ -8,6 +8,7 @@ import { GetUser } from './get-user.decorator';
 import { AdminGuard, CashierGuard } from './jwt.guard';
 import { HttpExceptionFilter } from './exception.filters';
 import { encodePassword, comparePassword } from './bcryptjs';
+import { AdminJwtStrategy, CashierJwtStrategy } from './jwt.strategy';
 
 export {
 	getOTP,
@@ -20,5 +21,7 @@ export {
 	LoginResponseI,
 	encodePassword,
 	comparePassword,
+	AdminJwtStrategy,
+	CashierJwtStrategy,
 	HttpExceptionFilter
 };

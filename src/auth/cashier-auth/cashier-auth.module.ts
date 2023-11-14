@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { JwtConfigService } from 'src/config';
-import { CashierJwtStrategy } from './utils/jwt.strategy';
+import { CashierJwtStrategy } from 'src/utils';
 import { CashierAuthService } from './cashier-auth.service';
 import { CashierModule } from 'src/user/cashier/cashier.module';
 import { CashierAuthEntity } from './entity/cashier-auth.entity';
