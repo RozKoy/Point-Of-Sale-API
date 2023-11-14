@@ -6,7 +6,6 @@ import {
 
 import { comparePassword } from 'src/utils';
 import { ParentEntity } from 'src/entity/parent';
-import { ProductEntity } from 'src/product/product/entity/product.entity';
 import { AdminAuthEntity } from 'src/auth/admin-auth/entity/admin-auth.entity';
 
 export enum AdminRole {
@@ -36,9 +35,6 @@ export class AdminEntity extends ParentEntity {
 
 	@Column({ type: 'enum', enum: AdminRole, default: AdminRole.ADMIN })
 	role: AdminRole;
-
-	@OneToMany(() => ProductEntity, (product) => product.author)
-	products: ProductEntity[];
 
 	@OneToMany(() => AdminAuthEntity, (auth) => auth.admin)
 	refresh_tokens: AdminAuthEntity[];

@@ -16,7 +16,7 @@ export class ProductEntity extends ParentEntity {
 	@Column({ type: 'text' })
 	image: string;
 
-	@ManyToOne(() => AdminEntity, (admin) => admin.products)
+	@ManyToOne(() => AdminEntity)
 	@JoinColumn({ name: 'author' })
 	author: AdminEntity;
 }
