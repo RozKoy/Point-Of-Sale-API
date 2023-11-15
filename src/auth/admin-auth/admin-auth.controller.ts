@@ -7,7 +7,9 @@ import {
 	UseGuards,
 	Controller,
 	HttpStatus,
-	HttpException
+	HttpException,
+	UseInterceptors,
+	ClassSerializerInterceptor
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -47,6 +49,7 @@ export class AdminAuthController {
 		throw new HttpException('Email atau password salah', HttpStatus.UNAUTHORIZED);
 	}
 
+	@UseInterceptors(ClassSerializerInterceptor)
 	@Post('/forget-password')
 	async forgetPassword (@Body() emailDto: EmailDto): Promise<RESPONSE_I> {
 		const { email } = emailDto;
