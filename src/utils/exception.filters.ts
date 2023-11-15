@@ -22,6 +22,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
 				data = 'Anda tidak memiliki akses';
 			} else if (statusCode === HttpStatus.INTERNAL_SERVER_ERROR) {
 				data = 'Oops... Terjadi kesalahan internal pada server';
+			} else if (statusCode === HttpStatus.FORBIDDEN) {
+				data = 'Mohon maaf token sudah tidak dapat digunakan';
 			} else if (statusCode === HttpStatus.BAD_REQUEST) {
 				if (data.message) {
 					data = data.message;

@@ -103,7 +103,7 @@ export class AdminAuthController {
 
 		if (response) {
 			if (response === 'expired') {
-				throw new HttpException('Refresh token tidak dapat digunakan lagi', HttpStatus.FORBIDDEN);
+				throw new HttpException('', HttpStatus.FORBIDDEN);
 			} else if (response === 'error') {
 				throw new HttpException('Oops... Terjadi kesalahan didalam server', HttpStatus.INTERNAL_SERVER_ERROR);
 			}
