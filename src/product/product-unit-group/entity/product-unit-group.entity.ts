@@ -11,7 +11,7 @@ import { UnitEntity } from 'src/product/unit/entity/unit.entity';
 import { ProductEntity } from 'src/product/product/entity/product.entity';
 
 @Entity('product_unit_group')
-export class ProductCategoryGroupEntity extends ParentEntity {
+export class ProductUnitGroupEntity extends ParentEntity {
 	@ManyToOne(() => AdminEntity)
 	@JoinColumn({ name: 'author' })
 	author: AdminEntity;
