@@ -15,6 +15,7 @@ import { ProductModule } from './product/product/product.module';
 import { CategoryModule } from './product/category/category.module';
 import { AdminAuthModule } from './auth/admin-auth/admin-auth.module';
 import { CashOnHandModule } from './pos/cash-on-hand/cash-on-hand.module';
+import { InvoiceListModule } from './pos/invoice-list/invoice-list.module';
 import { CashierAuthModule } from './auth/cashier-auth/cashier-auth.module';
 import { StockRecordModule } from './inventory/stock-record/stock-record.module';
 import { ProductUnitModule } from './product-group/product-unit/product-unit.module';
@@ -42,9 +43,10 @@ import { ProductExpiredDateModule } from './product/product-expired-date/product
     CategoryModule, 
     AdminAuthModule, 
     CashOnHandModule, 
+    CashierAuthModule, 
+    InvoiceListModule, 
     ProductUnitModule,
     StockRecordModule, 
-    CashierAuthModule, 
     ProductPrizeModule, 
     ProductCategoryModule, 
     ProductExpiredDateModule, 
