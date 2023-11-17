@@ -13,6 +13,9 @@ import { ProductModule } from './product/product/product.module';
 import { CategoryModule } from './product/category/category.module';
 import { AdminAuthModule } from './auth/admin-auth/admin-auth.module';
 import { CashierAuthModule } from './auth/cashier-auth/cashier-auth.module';
+import { ProductUnitModule } from './product-group/product-unit/product-unit.module';
+import { ProductPrizeModule } from './product-group/product-prize/product-prize.module';
+import { ProductCategoryModule } from './product-group/product-category/product-category.module';
 import { ProductExpiredDateModule } from './product/product-expired-date/product-expired-date.module';
 
 @Module({
@@ -32,8 +35,11 @@ import { ProductExpiredDateModule } from './product/product-expired-date/product
     ProductModule,
     CategoryModule, 
     AdminAuthModule, 
+    ProductUnitModule,
     CashierAuthModule, 
-    ProductExpiredDateModule,
+    ProductPrizeModule, 
+    ProductCategoryModule, 
+    ProductExpiredDateModule, 
   ],
   providers: [AppService],
   controllers: [AppController],
