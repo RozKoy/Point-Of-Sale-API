@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { PrizeService } from './prize.service';
+import { PrizeEntity } from './entity/prize.entity';
 
 const providers = [
 	{
@@ -8,8 +10,10 @@ const providers = [
 		useClass: PrizeService
 	}
 ];
+const imports = [TypeOrmModule.forFeature([PrizeEntity])];
 
 @Module({
-  providers,
+	imports,
+  providers
 })
 export class PrizeModule {}
