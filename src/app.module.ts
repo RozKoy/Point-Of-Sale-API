@@ -8,6 +8,7 @@ import { Configuration, TypeOrmConfig } from './config';
 import { AdminModule } from './user/admin/admin.module';
 import { UnitModule } from './product/unit/unit.module';
 import { PrizeModule } from './product/prize/prize.module';
+import { StockModule } from './inventory/stock/stock.module';
 import { CashierModule } from './user/cashier/cashier.module';
 import { ProductModule } from './product/product/product.module';
 import { CategoryModule } from './product/category/category.module';
@@ -29,8 +30,9 @@ import { ProductExpiredDateModule } from './product/product-expired-date/product
       useClass: TypeOrmConfig,
     }), 
     UnitModule, 
-    PrizeModule, 
     AdminModule, 
+    PrizeModule, 
+    StockModule, 
     CashierModule, 
     ProductModule,
     CategoryModule, 
