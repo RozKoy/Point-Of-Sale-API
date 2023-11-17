@@ -17,6 +17,7 @@ import { AdminAuthModule } from './auth/admin-auth/admin-auth.module';
 import { CashOnHandModule } from './pos/cash-on-hand/cash-on-hand.module';
 import { InvoiceListModule } from './pos/invoice-list/invoice-list.module';
 import { CashierAuthModule } from './auth/cashier-auth/cashier-auth.module';
+import { InvoiceGroupModule } from './pos/invoice-group/invoice-group.module';
 import { StockRecordModule } from './inventory/stock-record/stock-record.module';
 import { ProductUnitModule } from './product-group/product-unit/product-unit.module';
 import { ProductPrizeModule } from './product-group/product-prize/product-prize.module';
@@ -47,6 +48,7 @@ import { ProductExpiredDateModule } from './product/product-expired-date/product
     InvoiceListModule, 
     ProductUnitModule,
     StockRecordModule, 
+    InvoiceGroupModule, 
     ProductPrizeModule, 
     ProductCategoryModule, 
     ProductExpiredDateModule, 
