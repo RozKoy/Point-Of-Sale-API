@@ -6,7 +6,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CodeDto {
-	@ApiProperty()
+	@ApiProperty({ default: '123456' })
 	@IsNotEmpty({ message: 'Kode kasir wajib diisi' })
 	@MinLength(6, { message: 'Kode kasir tidak boleh kurang dari $constraint1 Karakter' })
 	@MaxLength(6, { message: 'Kode kasir tidak boleh melebihi $constraint1 karakter' })
