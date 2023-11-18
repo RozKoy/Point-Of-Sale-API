@@ -2,27 +2,27 @@ import { ExtractJwt } from 'passport-jwt';
 
 export const Configuration = () => ({
 	database: {
-		port: process.env.DB_PORT || 3306,
-		type: process.env.DB_TYPE || 'mysql',
-		host: process.env.DB_HOST || 'localhost',
+		port: process.env.DB_PORT,
+		type: process.env.DB_TYPE,
+		host: process.env.DB_HOST,
 
-		password: process.env.DB_PASSWORD || '',
-		username: process.env.DB_USERNAME || 'root',
-		database: process.env.DB_DATABASE || 'database',
+		password: process.env.DB_PASSWORD,
+		username: process.env.DB_USERNAME,
+		database: process.env.DB_DATABASE,
 		
-		synchronize: process.env.DB_SYNC || false,
+		synchronize: process.env.DB_SYNC,
 		entities: [__dirname + '/../**/*.entity.{ts,js}'],
 	},
 	jwt: {
-		global: process.env.JWT_GLOBAL || false,
-		secret: process.env.JWT_SECRET || 'jwtsecret',
+		global: process.env.JWT_GLOBAL,
+		secret: process.env.JWT_SECRET,
 		signOptions: {
-			expiresIn: process.env.JWT_EXPIRES_IN || '1s',
+			expiresIn: process.env.JWT_EXPIRES_IN,
 		},
 	},
 	jwtStrategy: {
 		jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-		ignoreExpiration: process.env.JWT_STRATEGY_EXPIRATION || false,
-		secretOrKey: process.env.JWT_SECRET || 'jwtsecret',
+		ignoreExpiration: process.env.JWT_STRATEGY_EXPIRATION,
+		secretOrKey: process.env.JWT_SECRET,
 	}
 })
