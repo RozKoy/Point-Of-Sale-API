@@ -9,7 +9,7 @@ import {
 	HttpStatus,
 	HttpException
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 import { 
 	RESPONSE, 
@@ -58,8 +58,9 @@ export class CashierAuthController {
 		throw new HttpException('Refresh token tidak terverifikasi', HttpStatus.NOT_FOUND);
 	}
 
-	@Patch('/:id/revoke')
+	@ApiBearerAuth()
 	@UseGuards(CashierGuard)
+	@Patch('/:id/revoke')
 	async revokeRefreshToken (@Param('id') id: string): Promise<RESPONSE_I> {
 		const response: any | null = await this.cashierAuthService.revokeRefreshToken(id);
 		

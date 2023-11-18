@@ -11,7 +11,7 @@ import {
 	UseInterceptors,
 	ClassSerializerInterceptor
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 import { 
 	EmailDto,
@@ -117,8 +117,9 @@ export class AdminAuthController {
 		throw new HttpException('Refresh token tidak terverifikasi', HttpStatus.NOT_FOUND);
 	}
 
-	@Patch('/:id/revoke')
+	@ApiBearerAuth()
 	@UseGuards(AdminGuard)
+	@Patch('/:id/revoke')
 	async revokeRefreshToken (@Param('id') id: string) {
 		const response: any | null = await this.adminAuthService.revokeRefreshToken(id);
 		
