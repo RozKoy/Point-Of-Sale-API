@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -60,7 +60,15 @@ export class AdminService {
 		return await this.adminRepository.findOne({ where: { email }, withDeleted: true });
 	}
 
-	async getAdminByRole (role: AdminRole): Promise<AdminEntity[]> {
+	async getAdminByRole (role: AdminRole, search?: string): Promise<AdminEntity[]> {
+		if (search) {
+			return await this.adminRepository.find({
+				where: [
+					{ role, email: Like(`%${ search }%`) },
+					{ role, username: Like(`%${ search }%`) }
+				]
+			});
+		}
 		return await this.adminRepository.findBy({ role });
 	}
 	
@@ -73,11 +81,11 @@ export class AdminService {
 	}
 
 	// UPDATE
-	async updateAdmin (id: string, updateAdminDto: UpdateAdminDto): Promise<AdminEntity> {
+	async updateAdmin (updateAdminDto: UpdateAdminDto): Promise<AdminEntity> {
+		const { id, email, username, image, password } = updateAdminDto;
+
 		const admin: AdminEntity = await this.adminRepository.findOneBy({ id });
 
-		const { email, username, image, password } = updateAdminDto;
-		
 		admin.email = email ? email : admin.email;
 		admin.image = image ? image : admin.image;
 		admin.username = username ? username : admin.username;

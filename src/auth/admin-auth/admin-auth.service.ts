@@ -81,7 +81,7 @@ export class AdminAuthService {
 		const admin: AdminEntity | null = await this.adminService.getAdminByEmail(email);
 
 		if (admin) {
-			await this.adminService.updateAdmin(admin.id, { password });
+			await this.adminService.updateAdmin({ id: admin.id, password });
 			await this.adminService.setOtp(email, null);
 
 			return email;

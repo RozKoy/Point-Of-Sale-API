@@ -17,6 +17,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
 		let data: string | any = exception.getResponse();
 		const statusCode: HttpStatus | number = exception.getStatus();
 
+		if (typeof(data) === 'string' && HttpStatus.BAD_REQUEST) {
+			data = { message: data };
+		}
+
 		if (typeof(data) === 'object') {
 			if (statusCode === HttpStatus.UNAUTHORIZED) {
 				data = 'Anda tidak memiliki akses';
@@ -27,7 +31,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
 			} else if (statusCode === HttpStatus.BAD_REQUEST) {
 				if (data.message) {
 					data = data.message;
+					data = [{ message: data }];
 				}
+			}
+			if (data.message) {
+				data = data.message;
 			}
 		}
 

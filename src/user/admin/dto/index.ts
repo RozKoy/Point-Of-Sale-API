@@ -1,14 +1,22 @@
 import { 
 	IsEmail, 
 	MinLength, 
-	MaxLength, 
+	MaxLength,
+	IsOptional, 
 	IsNotEmpty
 } from 'class-validator';
 import { 
 	PartialType,
-	ApiProperty, 
-	IntersectionType
+	ApiProperty,
+	IntersectionType,
+	ApiPropertyOptional
 } from '@nestjs/swagger';
+
+export class IDDto {
+	@ApiProperty({ default: 'id' })
+	@IsNotEmpty({ message: 'ID wajib diisi' })
+	id: string;
+}
 
 export class EmailDto {
 	@ApiProperty({ default: 'email@gmail.com' })
@@ -40,4 +48,14 @@ export class ImageDto {
 
 export class CreateAdminDto extends IntersectionType(EmailDto, UsernameDto, PasswordDto, ImageDto) {}
 
-export class UpdateAdminDto extends PartialType(CreateAdminDto) {}
+export class UpdateAdminDto extends PartialType(CreateAdminDto) {
+	@ApiPropertyOptional({ default: 'id' })
+	@IsOptional()
+	id: string;
+}
+
+export class SearchDto {
+	@ApiPropertyOptional({ default: 'search' })
+	@IsOptional()
+	search: string;
+}

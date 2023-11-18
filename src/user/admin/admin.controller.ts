@@ -3,31 +3,151 @@ import {
 	Put,
 	Post,
 	Body,
+	Query,
 	Param,
 	Patch,
 	Delete,
 	Inject,
+	UseGuards,
 	Controller,
 	HttpStatus,
 	HttpException,
 	UseInterceptors,
 	ClassSerializerInterceptor
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
+import { 
+	GetUser,
+	RESPONSE, 
+	RESPONSE_I, 
+	AdminGuard 
+} from 'src/utils';
+import { 
+	IDDto,
+	SearchDto, 
+	CreateAdminDto, 
+	UpdateAdminDto 
+} from './dto';
 import { SerializedAdmin } from './type';
 import { AdminService } from './admin.service';
-import { RESPONSE, RESPONSE_I } from 'src/utils';
-import { CreateAdminDto, UpdateAdminDto } from './dto';
 import { AdminEntity, AdminRole } from './entity/admin.entity';
 
+@ApiBearerAuth()
 @ApiTags('Admin')
+@UseGuards(new AdminGuard())
+
 @Controller('admin')
 export class AdminController {
 	constructor (
 		@Inject('ADMIN_SERVICE') private readonly adminService: AdminService
 	) {}
 
+	isSuperAdmin (role: AdminRole) {
+		if (role === AdminRole.SUPERADMIN) {
+			return true;
+		}
+
+		throw new HttpException({}, HttpStatus.UNAUTHORIZED);
+	}
+
+	// CREATE - Add Admin
+	@UseInterceptors(ClassSerializerInterceptor)
+	@Post('/add')
+	async createAdmin (
+		@Body() createAdminDto: CreateAdminDto, @GetUser() user: AdminEntity
+	): Promise<RESPONSE_I> 
+	{
+		if (this.isSuperAdmin(user.role)) {
+			const { email } = createAdminDto;
+			const adminExists: AdminEntity | null = await this.adminService.getTrashedAdminByEmail(email);
+
+			if (!adminExists) {
+				const role: AdminRole = AdminRole.ADMIN;
+				const admin: AdminEntity = await this.adminService.createAdmin(createAdminDto, role);
+
+				return RESPONSE(new SerializedAdmin(admin), 'Berhasil membuat akun admin', HttpStatus.CREATED);
+			}
+
+			throw new HttpException('Tidak dapat membuat akun admin', HttpStatus.CONFLICT);
+		}
+	}
+
+	// READ - Get Profile
+	@UseInterceptors(ClassSerializerInterceptor)
+	@Get('/profile')
+	getProfile (@GetUser() user: AdminEntity): RESPONSE_I {
+		const adminProfile: SerializedAdmin = new SerializedAdmin(user);
+		
+		return RESPONSE(adminProfile, 'Berhasil mendapatkan data admin', HttpStatus.OK);
+	}
+
+	// READ - Get Admin with Search
+	@UseInterceptors(ClassSerializerInterceptor)
+	@Get('/all')
+	async getAllAdmin (
+		@Query() searchDto: SearchDto, @GetUser() user: AdminEntity
+	): Promise<RESPONSE_I> 
+	{
+		if (this.isSuperAdmin(user.role)) {
+			const { search } = searchDto;
+			const role: AdminRole = AdminRole.ADMIN;
+			const allAdmin: AdminEntity[] = await this.adminService.getAdminByRole(role, search);
+
+			if (allAdmin.length !== 0) {
+				const admins: SerializedAdmin[] = allAdmin.map((admin) => new SerializedAdmin(admin));
+
+				return RESPONSE(admins, 'Berhasil mendapatkan daftar admin', HttpStatus.OK);
+			}
+
+			return RESPONSE(allAdmin, 'Daftar admin kosong', HttpStatus.NO_CONTENT);
+		}
+	}
+
+	// UPDATE
+	@UseInterceptors(ClassSerializerInterceptor)
+	@Put('/update')
+	async updateAdmin (
+		@Body() updateAdminDto: UpdateAdminDto, @GetUser() user: AdminEntity
+	): Promise<RESPONSE_I> 
+	{
+		if (this.isSuperAdmin(user.role)) {
+			const { id, email, username, password, image } = updateAdminDto;
+			
+			if (email || username || password || image) {
+				const admin: AdminEntity | null = await this.adminService.getAdminById(id);
+				if (admin) {
+					const updatedAdmin: AdminEntity | null = await this.adminService.updateAdmin(updateAdminDto);
+
+					if (updatedAdmin) {
+						return RESPONSE(new SerializedAdmin(updatedAdmin), 'Berhasil mengubah akun admin', HttpStatus.OK);
+					}
+				}
+
+				throw new HttpException('Admin tidak ditemukan', HttpStatus.NOT_FOUND);
+			}
+
+			throw new HttpException('Tidak ada data perubahan', HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	// DELETE
+	@Delete('/delete')
+	async deleteAdmin (@Body() idDto: IDDto, @GetUser() user: AdminEntity): Promise<RESPONSE_I> {
+		if (this.isSuperAdmin(user.role)) {
+			const { id } = idDto;
+			const admin: AdminEntity | null = await this.adminService.getAdminById(id);
+
+			if (admin) {
+				const response: any = await this.adminService.deleteAdminById(id);
+				return RESPONSE(response, 'Berhasil menghapus akun admin', HttpStatus.OK);
+			}
+
+			throw new HttpException('Tidak dapat mengahapus akun admin', HttpStatus.NOT_FOUND);
+		}
+	}
+
+/*
 	// CREATE
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Post('/create/super')
@@ -46,21 +166,6 @@ export class AdminController {
 		} 
 
 		throw new HttpException('Tidak dapat membuat akun super admin', HttpStatus.CONFLICT);
-	}
-
-	@UseInterceptors(ClassSerializerInterceptor)
-	@Post('/create')
-	async createAdmin (@Body() createAdminDto: CreateAdminDto): Promise<RESPONSE_I> {
-		const { email } = createAdminDto;
-		const adminExists: AdminEntity | null = await this.adminService.getTrashedAdminByEmail(email);
-
-		if (!adminExists) {
-			const role: AdminRole = AdminRole.ADMIN;
-			const admin: AdminEntity = await this.adminService.createAdmin(createAdminDto, role);
-			return RESPONSE(new SerializedAdmin(admin), 'Berhasil membuat akun admin', HttpStatus.CREATED);
-		}
-
-		throw new HttpException('Tidak dapat membuat akun admin', HttpStatus.CONFLICT);
 	}
 
 	// READ
@@ -93,44 +198,6 @@ export class AdminController {
 		throw new HttpException('Admin tidak dapat ditemukan', HttpStatus.NOT_FOUND);
 	}
 
-	// UPDATE
-	@UseInterceptors(ClassSerializerInterceptor)
-	@Put('/update/:id')
-	async updateAdmin (
-		@Body() updateAdminDto: UpdateAdminDto, @Param('id') id: string
-	): Promise<RESPONSE_I> 
-	{
-		const { email, username, password, image } = updateAdminDto;
-		
-		if (email || username || password || image) {
-			const admin: AdminEntity | null = await this.adminService.getAdminById(id);
-			if (admin) {
-				const updatedAdmin: AdminEntity | null = await this.adminService.updateAdmin(id, updateAdminDto);
-
-				if (updatedAdmin) {
-					return RESPONSE(new SerializedAdmin(updatedAdmin), 'Berhasil mengubah akun admin', HttpStatus.OK);
-				}
-			}
-
-			throw new HttpException('Admin tidak ditemukan', HttpStatus.NOT_FOUND);
-		}
-
-		throw new HttpException('Tidak ada data perubahan', HttpStatus.BAD_REQUEST);
-	}
-
-	// DELETE
-	@Delete('/delete/:id')
-	async deleteAdmin (@Param('id') id: string): Promise<RESPONSE_I> {
-		const admin: AdminEntity | null = await this.adminService.getAdminById(id);
-
-		if (admin) {
-			const response: any = await this.adminService.deleteAdminById(id);
-			return RESPONSE(response, 'Berhasil menghapus akun admin', HttpStatus.OK);
-		}
-
-		throw new HttpException('Tidak dapat mengahapus akun admin', HttpStatus.NOT_FOUND);
-	}
-
 	// RESTORE
 	@Patch('/restore/:id')
 	async restoreAdmin (@Param('id') id: string): Promise<RESPONSE_I> {
@@ -147,4 +214,5 @@ export class AdminController {
 
 		throw new HttpException('Admin tidak ditemukan', HttpStatus.NOT_FOUND);
 	}
+*/
 }
