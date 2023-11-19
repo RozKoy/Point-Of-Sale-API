@@ -22,7 +22,7 @@ export const Configuration = () => ({
 	},
 	jwtStrategy: {
 		jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-		ignoreExpiration: process.env.JWT_STRATEGY_EXPIRATION,
+		ignoreExpiration: process.env.JWT_STRATEGY_IGNORE_EXPIRATION,
 		secretOrKey: process.env.JWT_SECRET,
 	}
 })
