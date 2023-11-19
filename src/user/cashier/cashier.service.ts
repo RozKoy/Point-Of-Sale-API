@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -22,7 +22,11 @@ export class CashierService {
 	}
 
 	// READ
-	async getAllCashier (): Promise<CashierEntity[]> {
+	async getAllCashier (search?: string): Promise<CashierEntity[]> {
+		if (search) {
+			return await this.cashierRepository.findBy({ username: Like(`%${ search }%`) });
+		}
+
 		return await this.cashierRepository.find();
 	}
 
@@ -51,8 +55,8 @@ export class CashierService {
 	}
 
 	// UPDATE
-	async updateCashier (id: string, updateCashierDto: UpdateCashierDto): Promise<CashierEntity> {
-		const { username, image } = updateCashierDto;
+	async updateCashier (updateCashierDto: UpdateCashierDto): Promise<CashierEntity> {
+		const { id, username, image } = updateCashierDto;
 		const cashier: CashierEntity = await this.cashierRepository.findOneBy({ id });
 
 		cashier.image = image ? image : cashier.image;

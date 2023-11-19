@@ -1,38 +1,49 @@
 import { 
 	Get,
+	Put,
 	Post,
 	Body,
 	Patch,
 	Param,
+	Query,
 	Delete,
 	Inject,
+	UseGuards,
 	Controller,
 	HttpStatus,
 	HttpException
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 import {
 	RESPONSE,
 	RESPONSE_I,
+	AdminGuard,
 	cashierCode 
 } from 'src/utils';
+import { 
+	IDDto,
+	SearchDto,
+	CreateCashierDto, 
+	UpdateCashierDto 
+} from './dto';
 import { CashierService } from './cashier.service';
 import { CashierEntity } from './entity/cashier.entity';
-import { CreateCashierDto, UpdateCashierDto } from './dto';
 
+@ApiBearerAuth()
 @ApiTags('Cashier')
+
 @Controller('cashier')
 export class CashierController {
 	constructor (
 		@Inject('CASHIER_SERVICE') private readonly cashierService: CashierService
 	) {}
 
-	// CREATE
-	@Post('/create')
+	// CREATE - Add Cashier
+	@UseGuards(AdminGuard)
+	@Post('/add')
 	async createCashier (@Body() createCashierDto: CreateCashierDto): Promise<RESPONSE_I> {
 		const { username } = createCashierDto;
-
 		let cashier: CashierEntity | null = await this.cashierService.getTrashedCashierByUsername(username);
 
 		if (!cashier) {
@@ -42,6 +53,7 @@ export class CashierController {
 			for (let i = 1; i <= 3; i++) {
 				code = cashierCode();
 				cashier = await this.cashierService.getTrashedCashierByCode(code);
+				
 				if (!cashier) {
 					check = true;
 					break;
@@ -50,13 +62,71 @@ export class CashierController {
 
 			if (check && code) {
 				cashier = await this.cashierService.createCashier(code, createCashierDto);
-				return RESPONSE(cashier, 'Berhasil membuat akun kasir', HttpStatus.OK);
+
+				return RESPONSE(cashier, 'Berhasil membuat akun kasir', HttpStatus.CREATED);
 			}
 		}
 
 		throw new HttpException('Tidak dapat membuat akun kasir', HttpStatus.CONFLICT);
 	}
 
+	// READ - Get Cashier with Search
+	@UseGuards(AdminGuard)
+	@Get('/all')
+	async getAllCashier (@Query() searchDto: SearchDto): Promise<RESPONSE_I> {
+		const { search } = searchDto;
+		const cashiers: CashierEntity[] = await this.cashierService.getAllCashier(search);
+
+		if (cashiers.length !== 0) {
+			return RESPONSE(cashiers, 'Berhasil mendapatkan daftar akun kasir', HttpStatus.OK);
+		}
+
+		let msg: string = 'Daftar akun kasir kosong';
+
+		if (search) {
+			msg = 'Akun kasir tidak ditemukan';
+		}
+
+		return RESPONSE(cashiers, msg, HttpStatus.NO_CONTENT);
+	}
+
+	// UPDATE - Edit Cashier
+	@UseGuards(AdminGuard)
+	@Put('/update')
+	async updateCashier (@Body() updateCashierDto: UpdateCashierDto): Promise<RESPONSE_I> {
+		const { id, username, image } = updateCashierDto;
+
+		if (username || image) {
+			const cashier: CashierEntity | null = await this.cashierService.getCashierById(id);
+
+			if (cashier) {
+				const updatedCashier: CashierEntity = await this.cashierService.updateCashier(updateCashierDto);
+
+				return RESPONSE(updatedCashier, 'Berhasil mengubah data akun kasir', HttpStatus.OK);
+			}
+
+			throw new HttpException('Kasir tidak ditemukan', HttpStatus.NOT_FOUND);		
+		}
+
+		throw new HttpException('Tidak ada data perubahan', HttpStatus.BAD_REQUEST);
+	}
+
+	// DELETE - Delete Cashier
+	@UseGuards(AdminGuard)
+	@Delete('/delete')
+	async deleteCashier (@Body() idDto: IDDto): Promise<RESPONSE_I> {
+		const { id } = idDto;
+		const cashier: CashierEntity | null = await this.cashierService.getCashierById(id);
+
+		if (cashier) {
+			const response: any = await this.cashierService.deleteCashierById(id);
+			return RESPONSE(response, 'Berhasil menghapus akun kasir', HttpStatus.OK);
+		}
+
+		throw new HttpException('Tidak dapat mengahapus akun cashier', HttpStatus.NOT_FOUND);		
+	}
+
+/*
 	// READ
 	@Get()
 	async getAllCashier (): Promise<RESPONSE_I> {
@@ -80,41 +150,6 @@ export class CashierController {
 		throw new HttpException('Kasir tidak ditemukan', HttpStatus.NOT_FOUND);
 	}
 
-	// UPDATE
-	@Post('/update/:id')
-	async updateCashier (
-		@Body() updateCashierDto: UpdateCashierDto, @Param('id') id: string
-	): Promise<RESPONSE_I> 
-	{
-		const { username, image } = updateCashierDto;
-
-		if (username || image) {
-			const cashier: CashierEntity | null = await this.cashierService.getCashierById(id);
-
-			if (cashier) {
-				const updatedCashier: CashierEntity = await this.cashierService.updateCashier(id, updateCashierDto);
-				return RESPONSE(updatedCashier, 'Berhasil mengubah data akun kasir', HttpStatus.OK);
-			}
-
-			throw new HttpException('Kasir tidak ditemukan', HttpStatus.NOT_FOUND);		
-		}
-
-		throw new HttpException('Tidak ada data perubahan', HttpStatus.BAD_REQUEST);
-	}
-
-	// DELETE
-	@Delete('/delete/:id')
-	async deleteCashier (@Param('id') id: string): Promise<RESPONSE_I> {
-		const cashier: CashierEntity | null = await this.cashierService.getCashierById(id);
-
-		if (cashier) {
-			const response: any = await this.cashierService.deleteCashierById(id);
-			return RESPONSE(response, 'Berhasil menghapus akun kasir', HttpStatus.OK);
-		}
-
-		throw new HttpException('Tidak dapat mengahapus akun cashier', HttpStatus.NOT_FOUND);		
-	}
-
 	// RESTORE
 	@Patch('/restore/:id')
 	async restoreCashier (@Param('id') id: string): Promise<RESPONSE_I> {
@@ -131,4 +166,5 @@ export class CashierController {
 
 		throw new HttpException('Admin tidak ditemukan', HttpStatus.NOT_FOUND);
 	}
+*/
 }

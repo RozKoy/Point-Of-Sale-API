@@ -1,12 +1,20 @@
 import { 
 	MaxLength, 
 	IsNotEmpty,
+	IsOptional
 } from 'class-validator';
 import { 
 	PartialType,
 	ApiProperty,
-	IntersectionType
+	IntersectionType,
+	ApiPropertyOptional
 } from '@nestjs/swagger';
+
+export class IDDto {
+	@ApiProperty({ default: 'id' })
+	@IsNotEmpty({ message: 'ID wajib diisi' })
+	id: string;
+}
 
 export class UsernameDto {
 	@ApiProperty({ default: 'username' })
@@ -21,6 +29,14 @@ export class ImageDto {
 	image: string;
 }
 
+export class AllDto extends IntersectionType(IDDto, UsernameDto, ImageDto) {}
+
 export class CreateCashierDto extends IntersectionType(UsernameDto, ImageDto) {}
 
-export class UpdateCashierDto extends PartialType(CreateCashierDto) {}
+export class UpdateCashierDto extends PartialType(AllDto) {}
+
+export class SearchDto {
+	@ApiPropertyOptional({ default: 'search' })
+	@IsOptional()
+	search: string;
+}
