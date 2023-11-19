@@ -4,6 +4,7 @@ import {
 	IsOptional
 } from 'class-validator';
 import { 
+	OmitType,
 	PartialType,
 	ApiProperty,
 	IntersectionType,
@@ -29,14 +30,19 @@ export class ImageDto {
 	image: string;
 }
 
-export class AllDto extends IntersectionType(IDDto, UsernameDto, ImageDto) {}
-
-export class CreateCashierDto extends IntersectionType(UsernameDto, ImageDto) {}
-
-export class UpdateCashierDto extends PartialType(AllDto) {}
-
 export class SearchDto {
 	@ApiPropertyOptional({ default: 'search' })
 	@IsOptional()
 	search: string;
 }
+
+export class AllDto extends IntersectionType(
+	IDDto, 
+	ImageDto, 
+	SearchDto,
+	UsernameDto 
+) {}
+
+export class CreateCashierDto extends OmitType(AllDto, ['id', 'search'] as const) {}
+
+export class UpdateCashierDto extends PartialType(OmitType(AllDto, ['search'] as const)) {}

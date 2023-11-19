@@ -5,6 +5,8 @@ import {
 	IsNotEmpty
 } from 'class-validator';
 import { 
+	PickType,
+	OmitType,
 	ApiProperty, 
 	IntersectionType 
 } from '@nestjs/swagger';
@@ -39,14 +41,22 @@ export class OtpDto {
 	otp: string;	
 }
 
-export class LoginDto extends IntersectionType(EmailDto, PasswordDto) {}
-
-export class OtpVerificationDto extends IntersectionType(EmailDto, OtpDto) {}
-
-export class NewPasswordDto extends IntersectionType(EmailDto, PasswordDto, PasswordConfirmationDto, OtpDto) {}
-
 export class RefreshAccessTokenDto {
 	@ApiProperty()
 	@IsNotEmpty({ message: 'Refresh token wajib diisi' })
 	refresh_token: string;
 }
+
+export class AllDto extends IntersectionType(
+	OtpDto, 
+	EmailDto, 
+	PasswordDto, 
+	RefreshAccessTokenDto,
+	PasswordConfirmationDto 
+) {}
+
+export class LoginDto extends PickType(AllDto, ['email', 'password'] as const) {}
+
+export class OtpVerificationDto extends PickType(AllDto, ['email', 'otp'] as const) {}
+
+export class NewPasswordDto extends OmitType(AllDto, ['refresh_token'] as const) {}

@@ -6,6 +6,7 @@ import {
 	IsNotEmpty
 } from 'class-validator';
 import { 
+	OmitType,
 	PartialType,
 	ApiProperty,
 	IntersectionType,
@@ -46,16 +47,21 @@ export class ImageDto {
 	image: string;
 }
 
-export class CreateAdminDto extends IntersectionType(EmailDto, UsernameDto, PasswordDto, ImageDto) {}
-
-export class UpdateAdminDto extends PartialType(CreateAdminDto) {
-	@ApiPropertyOptional({ default: 'id' })
-	@IsOptional()
-	id: string;
-}
-
 export class SearchDto {
 	@ApiPropertyOptional({ default: 'search' })
 	@IsOptional()
 	search: string;
 }
+
+export class AllDto extends IntersectionType(
+	IDDto, 
+	EmailDto, 
+	ImageDto, 
+	SearchDto,
+	UsernameDto, 
+	PasswordDto 
+) {}
+
+export class CreateAdminDto extends OmitType(AllDto, ['id', 'search'] as const) {}
+
+export class UpdateAdminDto extends PartialType(OmitType(AllDto, ['search'] as const)) {}
