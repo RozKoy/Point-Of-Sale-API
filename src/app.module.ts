@@ -24,6 +24,7 @@ import { StockRecordModule } from './inventory/stock-record/stock-record.module'
 import { ProductUnitModule } from './product-group/product-unit/product-unit.module';
 import { ProductPrizeModule } from './product-group/product-prize/product-prize.module';
 import { ProductCategoryModule } from './product-group/product-category/product-category.module';
+import { ProductControllerModule } from './controller/product-controller/product-controller.module';
 import { ProductExpiredDateModule } from './product/product-expired-date/product-expired-date.module';
 
 @Module({
@@ -56,6 +57,8 @@ import { ProductExpiredDateModule } from './product/product-expired-date/product
     InvoiceDeleteModule, 
     ProductCategoryModule, 
     ProductExpiredDateModule, 
+
+    ProductControllerModule, 
   ],
   providers: [AppService],
   controllers: [AppController],
