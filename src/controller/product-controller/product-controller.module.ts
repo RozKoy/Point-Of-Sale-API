@@ -1,8 +1,13 @@
 import { Module } from '@nestjs/common';
 
+import { CategoryModule } from 'src/product/category/category.module';
 import { ProductControllerController } from './product-controller.controller';
 
+const imports = [CategoryModule];
+const controllers = [ProductControllerController];
+
 @Module({
-  controllers: [ProductControllerController]
+  imports,
+  controllers
 })
 export class ProductControllerModule {}

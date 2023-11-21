@@ -1,8 +1,7 @@
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { NameDto } from './dto';
 import { CategoryEntity } from './entity/category.entity';
 import { AdminEntity } from 'src/user/admin/entity/admin.entity';
 
@@ -14,9 +13,9 @@ export class CategoryService {
 	) {}
 
 	// CREATE
-	async createCategory (author: AdminEntity, nameDto: NameDto): Promise<CategoryEntity> {
+	async createCategory (author: AdminEntity, name: string): Promise<CategoryEntity> {
 		const newCategory: CategoryEntity = await this.categoryRepository.create({
-			...nameDto,
+			name,
 			author
 		});
 
@@ -24,7 +23,11 @@ export class CategoryService {
 	}
 
 	// READ
-	async getAllCategory (): Promise<CategoryEntity[]> {
+	async getAllCategory (search: string): Promise<CategoryEntity[]> {
+		if (search) {
+			return await this.categoryRepository.findBy({ name: Like(`%${ search }%`) });
+		}
+
 		return await this.categoryRepository.find();
 	}
 
