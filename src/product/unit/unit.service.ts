@@ -1,8 +1,7 @@
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { NameDto } from './dto';
 import { UnitEntity } from './entity/unit.entity';
 import { AdminEntity } from 'src/user/admin/entity/admin.entity';
 
@@ -14,9 +13,9 @@ export class UnitService {
 	) {}
 
 	// CREATE
-	async createUnit (author: AdminEntity, nameDto: NameDto): Promise<UnitEntity> {
+	async createUnit (author: AdminEntity, name: string): Promise<UnitEntity> {
 		const newUnit = await this.unitRepository.create({
-			...nameDto,
+			name,
 			author
 		});
 
@@ -24,7 +23,11 @@ export class UnitService {
 	}
 
 	// READ
-	async getAllUnit (): Promise<UnitEntity[]> {
+	async getAllUnit (search: string): Promise<UnitEntity[]> {
+		if (search) {
+			return await this.unitRepository.findBy({ name: Like(`%${ search }%`) });
+		}
+
 		return await this.unitRepository.find();
 	}
 

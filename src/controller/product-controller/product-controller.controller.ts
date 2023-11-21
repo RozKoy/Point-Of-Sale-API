@@ -15,9 +15,11 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 import {
 	IDDto, 
+	SearchDto, 
+	UnitNameDto,
+	UnitUpdateDto,
 	CategoryNameDto, 
 	CategoryUpdateDto,
-	CategorySearchDto 
 } from './dto';
 
 import { 
@@ -27,9 +29,11 @@ import {
 	AdminGuard
 } from 'src/utils';
 
+import { UnitEntity } from 'src/product/unit/entity/unit.entity';
 import { AdminEntity } from 'src/user/admin/entity/admin.entity';
 import { CategoryEntity } from 'src/product/category/entity/category.entity';
 
+import { UnitService } from 'src/product/unit/unit.service';
 import { CategoryService } from 'src/product/category/category.service';
 
 @ApiBearerAuth()
@@ -38,19 +42,121 @@ import { CategoryService } from 'src/product/category/category.service';
 @Controller('product')
 export class ProductControllerController {
 	constructor (
+		@Inject('UNIT_SERVICE') private readonly unitService: UnitService,
 		@Inject('CATEGORY_SERVICE') private readonly categoryService: CategoryService
 	) {}
 
-	/* CATEGORY */
+	/*--- UNIT ---*/
+
+	async createUnit(author: AdminEntity, name: string): Promise<RESPONSE_I> {
+		let id: string | null = null;
+		let msg: string = 'Berhasil menambahkan unit';
+		const unitExists: UnitEntity | null = await this.unitService.getTrashedUnitByName(name);
+
+		if (unitExists && !unitExists?.delete_at) {
+			throw new HttpException('Unit telah digunakan', HttpStatus.CONFLICT);
+		} else if (unitExists && unitExists?.delete_at) {
+			id = unitExists.id;
+			msg = 'Berhasil mengembalikan unit';
+			await this.unitService.restoreUnit(id);
+			await this.unitService.updateUnit(id, author);
+		} else {
+			const newUnit: UnitEntity = await this.unitService.createUnit(author, name);
+			id = newUnit.id;
+		}
+
+		if (id) {
+			const unit: UnitEntity = await this.unitService.getUnitById(id);
+
+			return RESPONSE(unit, msg, HttpStatus.CREATED);
+		}
+
+		return;
+	}
+
+	// CREATE - Add Unit
+	@UseGuards(AdminGuard)
+	@Post('/unit/add')
+	async addUnit (
+		@Body() nameDto: UnitNameDto, @GetUser() author: AdminEntity
+	): Promise<RESPONSE_I> 
+	{
+		const { name } = nameDto;
+
+		return await this.createUnit(author, name);
+	}
+
+	// READ - Get Unit with Search
+	@UseGuards(AdminGuard)
+	@Get('/unit/all')
+	async getAllUnit (@Query() searchDto: SearchDto): Promise<RESPONSE_I> {
+		const { search } = searchDto;
+		let status: HttpStatus = HttpStatus.OK;
+		let msg: string = 'Berhasil mendapatkan daftar unit';
+		const unit: UnitEntity[] = await this.unitService.getAllUnit(search);
+
+		if (unit.length === 0) {
+			msg = 'Daftar unit kosong';
+			status = HttpStatus.NO_CONTENT;
+		}
+
+		return RESPONSE(unit, msg, status);
+	}
+
+	// UPDATE - Update Unit
+	@UseGuards(AdminGuard)
+	@Put('/unit/update')
+	async updateUnit (
+		@Body() updateDto: UnitUpdateDto, @GetUser() author: AdminEntity
+	): Promise<RESPONSE_I> 
+	{
+		const { id, name } = updateDto;
+
+		const unitExists: UnitEntity | null = await this.unitService.getUnitById(id);
+
+		if (!unitExists) {
+			throw new HttpException('Unit tidak dapat ditemukan', HttpStatus.NOT_FOUND);
+		}
+
+		if (unitExists.name === name) {
+			throw new HttpException('Unit tidak ada perubahan', HttpStatus.BAD_REQUEST);
+		}
+
+		await this.unitService.updateUnit(id, author);
+		await this.unitService.deleteUnit(id);
+
+		return this.createUnit(author, name);
+	}
+
+	// DELETE - Delete Category
+	@UseGuards(AdminGuard)
+	@Delete('/unit/delete')
+	async deleteUnit (
+		@Body() idDto: IDDto, @GetUser() author: AdminEntity
+	): Promise<RESPONSE_I> 
+	{
+		const { id } = idDto;
+		const unitExists: UnitEntity | null = await this.unitService.getUnitById(id);
+
+		if (unitExists) {
+			const response: any = await this.unitService.deleteUnit(id);
+
+			return RESPONSE(response, 'Berhasil menghapus unit', HttpStatus.OK);
+		}
+
+		throw new HttpException('Unit tidak dapat ditemukan', HttpStatus.NOT_FOUND);
+	}
+
+	/*--- CATEGORY ---*/
 
 	async createCategory (author: AdminEntity, name: string): Promise<RESPONSE_I> {
 		let id: string | null = null;
 		let msg: string = 'Berhasil menambahkan kategori';
 		const categoryExists: CategoryEntity | null = await this.categoryService.getTrashedCategoryByName(name);
 
-		if (categoryExists && !categoryExists.delete_at) {
+		if (categoryExists && !categoryExists?.delete_at) {
 			throw new HttpException('Kategori telah digunakan', HttpStatus.CONFLICT);
-		} else if (categoryExists && categoryExists.delete_at) {
+		} else if (categoryExists && categoryExists?.delete_at) {
 			id = categoryExists.id;
 			msg = 'Berhasil mengembalikan kategori';
 			await this.categoryService.restoreCategory(id);
@@ -80,7 +186,7 @@ export class ProductControllerController {
 	// READ - Get Category with Search
 	@UseGuards(AdminGuard)
 	@Get('/category/all')
-	async getAllCategory (@Query() searchDto: CategorySearchDto): Promise<RESPONSE_I> {
+	async getAllCategory (@Query() searchDto: SearchDto): Promise<RESPONSE_I> {
 		const { search } = searchDto;
 		let status: HttpStatus = HttpStatus.OK;
 		let msg: string = 'Berhasil mendapatkan daftar kategori';
