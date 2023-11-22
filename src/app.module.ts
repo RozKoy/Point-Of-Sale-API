@@ -2,9 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { AppService } from './app.service';
-import { AppController } from './app.controller';
 import { Configuration, TypeOrmConfig } from './config';
+
 import { AdminModule } from './user/admin/admin.module';
 import { UnitModule } from './product/unit/unit.module';
 import { PrizeModule } from './product/prize/prize.module';
@@ -24,8 +23,9 @@ import { StockRecordModule } from './inventory/stock-record/stock-record.module'
 import { ProductUnitModule } from './product-group/product-unit/product-unit.module';
 import { ProductPrizeModule } from './product-group/product-prize/product-prize.module';
 import { ProductCategoryModule } from './product-group/product-category/product-category.module';
-import { ProductControllerModule } from './controller/product-controller/product-controller.module';
 import { ProductExpiredDateModule } from './product/product-expired-date/product-expired-date.module';
+
+import { ProductControllerModule } from './controller/product-controller/product-controller.module';
 
 @Module({
   imports: [
@@ -59,8 +59,6 @@ import { ProductExpiredDateModule } from './product/product-expired-date/product
     ProductExpiredDateModule, 
 
     ProductControllerModule, 
-  ],
-  providers: [AppService],
-  controllers: [AppController],
+  ]
 })
 export class AppModule {}
