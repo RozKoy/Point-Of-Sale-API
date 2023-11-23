@@ -1,9 +1,18 @@
+import {
+	paginate,
+	Pagination,
+	IPaginationOptions
+} from 'nestjs-typeorm-paginate';
 import { Like, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
+import { 
+	FilterDto, 
+	CreateCashierDto, 
+	UpdateCashierDto 
+} from './dto';
 import { CashierEntity } from './entity/cashier.entity';
-import { CreateCashierDto, UpdateCashierDto } from './dto';
 
 @Injectable()
 export class CashierService {
@@ -22,12 +31,20 @@ export class CashierService {
 	}
 
 	// READ
-	async getAllCashier (search?: string): Promise<CashierEntity[]> {
+	async getAllCashier (filterDto: FilterDto): Promise<Pagination<CashierEntity>> {
+		const { page, limit, search } = filterDto;
+		const options: IPaginationOptions = {
+			page: page || 1,
+			limit: limit || 5
+		};
+
 		if (search) {
-			return await this.cashierRepository.findBy({ username: Like(`%${ search }%`) });
+			return await paginate<CashierEntity>(this.cashierRepository, options, {
+				where: { username: Like(`%${ search }%`) }
+			});
 		}
 
-		return await this.cashierRepository.find();
+		return await paginate<CashierEntity>(this.cashierRepository, options);
 	}
 
 	async getCashierById (id: string): Promise<CashierEntity | null> {

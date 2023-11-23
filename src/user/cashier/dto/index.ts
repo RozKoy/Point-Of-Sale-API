@@ -1,15 +1,18 @@
 import { 
+	Min,
+	IsNumber,
 	MaxLength, 
 	IsNotEmpty,
 	IsOptional
 } from 'class-validator';
 import { 
-	OmitType,
+	PickType,
 	PartialType,
 	ApiProperty,
 	IntersectionType,
 	ApiPropertyOptional
 } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class IDDto {
 	@ApiProperty({ default: 'id' })
@@ -36,13 +39,43 @@ export class SearchDto {
 	search: string;
 }
 
+export class PaginationDto {
+	@ApiPropertyOptional({ default: 1 })
+	@IsOptional()
+	@IsNumber({}, { message: 'Halaman harus berupa angka' })
+	@Min(1, { message: 'Halaman tidak boleh kurang dari $constraint1' })
+	@Type(() => Number)
+	page: number;
+
+	@ApiPropertyOptional({ default: 1 })
+	@IsOptional()
+	@IsNumber({}, { message: 'Batas data harus berupa angka' })
+	@Min(1, { message: 'Batas data tidak boleh kurang dari $constraint1' })
+	@Type(() => Number)
+	limit: number;
+}
+
 export class AllDto extends IntersectionType(
 	IDDto, 
 	ImageDto, 
 	SearchDto,
-	UsernameDto 
+	UsernameDto,
+	PaginationDto
 ) {}
 
-export class CreateCashierDto extends OmitType(AllDto, ['id', 'search'] as const) {}
+export class CreateCashierDto extends PickType(AllDto, [
+	'image', 
+	'username'
+] as const) {}
 
-export class UpdateCashierDto extends PartialType(OmitType(AllDto, ['search'] as const)) {}
+export class UpdateCashierDto extends PartialType(PickType(AllDto, [
+	'id', 
+	'image', 
+	'username'
+] as const)) {}
+
+export class FilterDto extends PickType(AllDto, [
+	'page',
+	'limit',
+	'search'
+] as const) {}

@@ -13,6 +13,7 @@ import {
 	HttpStatus,
 	HttpException
 } from '@nestjs/common';
+import { Pagination } from 'nestjs-typeorm-paginate';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 import {
@@ -23,7 +24,7 @@ import {
 } from 'src/utils';
 import { 
 	IDDto,
-	SearchDto,
+	FilterDto,
 	CreateCashierDto, 
 	UpdateCashierDto 
 } from './dto';
@@ -73,11 +74,11 @@ export class CashierController {
 	// READ - Get Cashier with Search
 	@UseGuards(AdminGuard)
 	@Get('/all')
-	async getAllCashier (@Query() searchDto: SearchDto): Promise<RESPONSE_I> {
-		const { search } = searchDto;
-		const cashiers: CashierEntity[] = await this.cashierService.getAllCashier(search);
+	async getAllCashier (@Query() filterDto: FilterDto): Promise<RESPONSE_I> {
+		const { search } = filterDto;
+		const cashiers: Pagination<CashierEntity> = await this.cashierService.getAllCashier(filterDto);
 
-		if (cashiers.length !== 0) {
+		if (cashiers.items.length !== 0) {
 			return RESPONSE(cashiers, 'Berhasil mendapatkan daftar akun kasir', HttpStatus.OK);
 		}
 
