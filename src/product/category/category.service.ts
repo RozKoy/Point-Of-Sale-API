@@ -1,9 +1,15 @@
+import {
+	paginate,
+	Pagination,
+	IPaginationOptions
+} from 'nestjs-typeorm-paginate';
 import { Like, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { CategoryEntity } from './entity/category.entity';
 import { AdminEntity } from 'src/user/admin/entity/admin.entity';
+import { FilterDto } from 'src/controller/product-controller/dto';
 
 @Injectable()
 export class CategoryService {
@@ -23,12 +29,20 @@ export class CategoryService {
 	}
 
 	// READ
-	async getAllCategory (search: string): Promise<CategoryEntity[]> {
+	async getAllCategory (filterDto: FilterDto): Promise<Pagination<CategoryEntity>> {
+		const { page, limit, search } = filterDto;
+		const options: IPaginationOptions = {
+			page: page || 1,
+			limit: limit || 5
+		};
+
 		if (search) {
-			return await this.categoryRepository.findBy({ name: Like(`%${ search }%`) });
+			return await paginate<CategoryEntity>(this.categoryRepository, options, {
+				where: { name: Like(`%${ search }%`) }
+			});
 		}
 
-		return await this.categoryRepository.find();
+		return await paginate<CategoryEntity>(this.categoryRepository, options);
 	}
 
 	async getCategoryById (id: string): Promise<CategoryEntity | null> {

@@ -16,7 +16,6 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 import {
 	IDDto, 
-	SearchDto,
 	FilterDto, 
 	UnitNameDto,
 	UnitUpdateDto,
@@ -133,7 +132,7 @@ export class ProductControllerController {
 		return this.createUnit(author, name);
 	}
 
-	// DELETE - Delete Category
+	// DELETE - Delete Unit
 	@UseGuards(AdminGuard)
 	@Delete('/unit/delete')
 	async deleteUnit (
@@ -191,15 +190,18 @@ export class ProductControllerController {
 	// READ - Get Category with Search
 	@UseGuards(AdminGuard)
 	@Get('/category/all')
-	async getAllCategory (@Query() searchDto: SearchDto): Promise<RESPONSE_I> {
-		const { search } = searchDto;
+	async getAllCategory (@Query() filterDto: FilterDto): Promise<RESPONSE_I> {
+		const { search } = filterDto;
 		let status: HttpStatus = HttpStatus.OK;
 		let msg: string = 'Berhasil mendapatkan daftar kategori';
-		const categories: CategoryEntity[] = await this.categoryService.getAllCategory(search);
+		const categories: Pagination<CategoryEntity> = await this.categoryService.getAllCategory(filterDto);
 
-		if (categories.length === 0) {
+		if (categories.items.length === 0) {
 			msg = 'Daftar kategori kosong';
 			status = HttpStatus.NO_CONTENT;
+			if (search) {
+				msg = 'Kategori tidak ditemukan';
+			}
 		}
 
 		return RESPONSE(categories, msg, status);
