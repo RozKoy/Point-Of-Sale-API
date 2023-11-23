@@ -47,7 +47,7 @@ export class PaginationDto {
 	@Type(() => Number)
 	page: number;
 
-	@ApiPropertyOptional({ default: 1 })
+	@ApiPropertyOptional({ default: 5 })
 	@IsOptional()
 	@IsNumber({}, { message: 'Batas data harus berupa angka' })
 	@Min(1, { message: 'Batas data tidak boleh kurang dari $constraint1' })

@@ -1,9 +1,18 @@
+import {
+	paginate,
+	Pagination,
+	IPaginationOptions
+} from 'nestjs-typeorm-paginate';
 import { Like, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
+import { 
+	FilterDto, 
+	CreateAdminDto, 
+	UpdateAdminDto 
+} from './dto';
 import { encodePassword } from 'src/utils';
-import { CreateAdminDto, UpdateAdminDto } from './dto';
 import { AdminEntity, AdminRole } from './entity/admin.entity';
 
 @Injectable()
@@ -60,16 +69,25 @@ export class AdminService {
 		return await this.adminRepository.findOne({ where: { email }, withDeleted: true });
 	}
 
-	async getAdminByRole (role: AdminRole, search?: string): Promise<AdminEntity[]> {
+	async getAdminByRole (role: AdminRole, filterDto: FilterDto): Promise<Pagination<AdminEntity>> {
+		const { page, limit, search } = filterDto;
+		const options: IPaginationOptions = {
+			page: page || 1,
+			limit: limit || 5
+		};
+
 		if (search) {
-			return await this.adminRepository.find({
+			return await paginate<AdminEntity>(this.adminRepository, options, {
 				where: [
 					{ role, email: Like(`%${ search }%`) },
 					{ role, username: Like(`%${ search }%`) }
 				]
 			});
 		}
-		return await this.adminRepository.findBy({ role });
+
+		return await paginate<AdminEntity>(this.adminRepository, options, {
+			where: { role }
+		});
 	}
 	
 	async getAdminById (id: string): Promise<AdminEntity | null> {

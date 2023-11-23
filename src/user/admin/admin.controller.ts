@@ -15,6 +15,7 @@ import {
 	UseInterceptors,
 	ClassSerializerInterceptor
 } from '@nestjs/common';
+import { Pagination } from 'nestjs-typeorm-paginate';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 import { 
@@ -25,7 +26,7 @@ import {
 } from 'src/utils';
 import { 
 	IDDto,
-	SearchDto, 
+	FilterDto, 
 	CreateAdminDto, 
 	UpdateAdminDto 
 } from './dto';
@@ -86,21 +87,28 @@ export class AdminController {
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Get('/all')
 	async getAllAdmin (
-		@Query() searchDto: SearchDto, @GetUser() user: AdminEntity
+		@Query() filterDto: FilterDto, @GetUser() user: AdminEntity
 	): Promise<RESPONSE_I> 
 	{
 		if (this.isSuperAdmin(user.role)) {
-			const { search } = searchDto;
+			const { search } = filterDto;
 			const role: AdminRole = AdminRole.ADMIN;
-			const allAdmin: AdminEntity[] = await this.adminService.getAdminByRole(role, search);
+			const allAdmin: Pagination<AdminEntity> = await this.adminService.getAdminByRole(role, filterDto);
 
-			if (allAdmin.length !== 0) {
-				const admins: SerializedAdmin[] = allAdmin.map((admin) => new SerializedAdmin(admin));
+			if (allAdmin.items.length !== 0) {
+				const admins: any = allAdmin;
+				admins.items = allAdmin.items.map((admin) => new SerializedAdmin(admin));
 
 				return RESPONSE(admins, 'Berhasil mendapatkan daftar admin', HttpStatus.OK);
 			}
 
-			return RESPONSE(allAdmin, 'Daftar admin kosong', HttpStatus.NO_CONTENT);
+			let msg: string = 'Daftar admin kosong';
+
+			if (search) {
+				msg = 'Admin tidak ditemukan';
+			}
+
+			return RESPONSE(allAdmin, msg, HttpStatus.NO_CONTENT);
 		}
 	}
 

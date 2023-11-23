@@ -1,17 +1,20 @@
 import { 
+	Min,
 	IsEmail, 
+	IsNumber,
 	MinLength, 
 	MaxLength,
 	IsOptional, 
 	IsNotEmpty
 } from 'class-validator';
 import { 
-	OmitType,
+	PickType,
 	PartialType,
 	ApiProperty,
 	IntersectionType,
 	ApiPropertyOptional
 } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class IDDto {
 	@ApiProperty({ default: 'id' })
@@ -53,15 +56,49 @@ export class SearchDto {
 	search: string;
 }
 
+export class PaginationDto {
+	@ApiPropertyOptional({ default: 1 })
+	@IsOptional()
+	@IsNumber({}, { message: 'Halaman harus berupa angka' })
+	@Min(1, { message: 'Halaman tidak boleh kurang dari $constraint1' })
+	@Type(() => Number)
+	page: number;
+
+	@ApiPropertyOptional({ default: 5 })
+	@IsOptional()
+	@IsNumber({}, { message: 'Batas data harus berupa angka' })
+	@Min(1, { message: 'Batas data tidak boleh kurang dari $constraint1' })
+	@Type(() => Number)
+	limit: number;
+}
+
 export class AllDto extends IntersectionType(
 	IDDto, 
 	EmailDto, 
 	ImageDto, 
 	SearchDto,
 	UsernameDto, 
-	PasswordDto 
+	PasswordDto,
+	PaginationDto
 ) {}
 
-export class CreateAdminDto extends OmitType(AllDto, ['id', 'search'] as const) {}
+export class CreateAdminDto extends PickType(AllDto, [
+	'email', 
+	'image',
+	'username',
+	'password'
+] as const) {}
 
-export class UpdateAdminDto extends PartialType(OmitType(AllDto, ['search'] as const)) {}
+export class UpdateAdminDto extends PartialType(PickType(AllDto, [
+	'id',
+	'email', 
+	'image',
+	'username',
+	'password'
+] as const)) {}
+
+export class FilterDto extends PickType(AllDto, [
+	'page',
+	'limit',
+	'search'
+] as const) {}
