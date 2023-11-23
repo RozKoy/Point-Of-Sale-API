@@ -190,11 +190,11 @@ export class ProductControllerController {
 	// READ - Get Category with Search
 	@UseGuards(AdminGuard)
 	@Get('/category/all')
-	async getAllCategory (@Query() filterDto: FilterDto): Promise<RESPONSE_I> {
+	async getPaginationCategory (@Query() filterDto: FilterDto): Promise<RESPONSE_I> {
 		const { search } = filterDto;
 		let status: HttpStatus = HttpStatus.OK;
 		let msg: string = 'Berhasil mendapatkan daftar kategori';
-		const categories: Pagination<CategoryEntity> = await this.categoryService.getAllCategory(filterDto);
+		const categories: Pagination<CategoryEntity> = await this.categoryService.getPaginationCategory(filterDto);
 
 		if (categories.items.length === 0) {
 			msg = 'Daftar kategori kosong';
@@ -202,6 +202,22 @@ export class ProductControllerController {
 			if (search) {
 				msg = 'Kategori tidak ditemukan';
 			}
+		}
+
+		return RESPONSE(categories, msg, status);
+	}
+
+	// READ - Get Category List
+	@UseGuards(AdminGuard)
+	@Get('/category/list')
+	async getAllCategory (): Promise<RESPONSE_I> {
+		let status: HttpStatus = HttpStatus.OK;
+		let msg: string = 'Berhasil mendapatkan daftar kategori';
+		const categories: CategoryEntity[] = await this.categoryService.getAllCategory();
+
+		if (categories.length === 0) {
+			msg = 'Daftar kategori kosong';
+			status = HttpStatus.NO_CONTENT;
 		}
 
 		return RESPONSE(categories, msg, status);

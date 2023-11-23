@@ -29,7 +29,7 @@ export class CategoryService {
 	}
 
 	// READ
-	async getAllCategory (filterDto: FilterDto): Promise<Pagination<CategoryEntity>> {
+	async getPaginationCategory (filterDto: FilterDto): Promise<Pagination<CategoryEntity>> {
 		const { page, limit, search } = filterDto;
 		const options: IPaginationOptions = {
 			page: page || 1,
@@ -43,6 +43,10 @@ export class CategoryService {
 		}
 
 		return await paginate<CategoryEntity>(this.categoryRepository, options);
+	}
+
+	async getAllCategory (): Promise<CategoryEntity[]> {
+		return await this.categoryRepository.find();
 	}
 
 	async getCategoryById (id: string): Promise<CategoryEntity | null> {
