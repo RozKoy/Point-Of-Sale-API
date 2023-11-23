@@ -11,11 +11,13 @@ import {
 	HttpStatus,
 	HttpException
 } from '@nestjs/common';
+import { Pagination } from 'nestjs-typeorm-paginate';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 import {
 	IDDto, 
-	SearchDto, 
+	SearchDto,
+	FilterDto, 
 	UnitNameDto,
 	UnitUpdateDto,
 	CategoryNameDto, 
@@ -89,15 +91,18 @@ export class ProductControllerController {
 	// READ - Get Unit with Search
 	@UseGuards(AdminGuard)
 	@Get('/unit/all')
-	async getAllUnit (@Query() searchDto: SearchDto): Promise<RESPONSE_I> {
-		const { search } = searchDto;
+	async getAllUnit (@Query() filterDto: FilterDto): Promise<RESPONSE_I> {
+		const { search } = filterDto;
 		let status: HttpStatus = HttpStatus.OK;
 		let msg: string = 'Berhasil mendapatkan daftar unit';
-		const unit: UnitEntity[] = await this.unitService.getAllUnit(search);
+		const unit: Pagination<UnitEntity> = await this.unitService.getAllUnit(filterDto);
 
-		if (unit.length === 0) {
+		if (unit.items.length === 0) {
 			msg = 'Daftar unit kosong';
 			status = HttpStatus.NO_CONTENT;
+			if (search) {
+				msg = 'Unit tidak ditemukan';
+			}
 		}
 
 		return RESPONSE(unit, msg, status);

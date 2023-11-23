@@ -1,9 +1,15 @@
+import {
+	paginate,
+	Pagination,
+	IPaginationOptions
+} from 'nestjs-typeorm-paginate';
 import { Like, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { UnitEntity } from './entity/unit.entity';
 import { AdminEntity } from 'src/user/admin/entity/admin.entity';
+import { FilterDto } from 'src/controller/product-controller/dto';
 
 @Injectable()
 export class UnitService {
@@ -23,12 +29,20 @@ export class UnitService {
 	}
 
 	// READ
-	async getAllUnit (search: string): Promise<UnitEntity[]> {
+	async getAllUnit (filterDto: FilterDto): Promise<Pagination<UnitEntity>> {
+		const { page, limit, search } = filterDto;
+		const options: IPaginationOptions = {
+			page: page || 1,
+			limit: limit || 5
+		};
+
 		if (search) {
-			return await this.unitRepository.findBy({ name: Like(`%${ search }%`) });
+			return await paginate<UnitEntity>(this.unitRepository, options, {
+				where: { name: Like(`%${ search }%`) }
+			});
 		}
 
-		return await this.unitRepository.find();
+		return await paginate<UnitEntity>(this.unitRepository, options);
 	}
 
 	async getUnitById (id: string): Promise<UnitEntity | null> {
