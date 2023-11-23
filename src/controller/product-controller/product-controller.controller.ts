@@ -14,6 +14,13 @@ import {
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
+import { 
+	GetUser, 
+	RESPONSE,
+	RESPONSE_I,
+	AdminGuard
+} from 'src/utils';
+
 import {
 	IDDto, 
 	FilterDto, 
@@ -22,13 +29,6 @@ import {
 	CategoryNameDto, 
 	CategoryUpdateDto,
 } from './dto';
-
-import { 
-	GetUser, 
-	RESPONSE,
-	RESPONSE_I,
-	AdminGuard
-} from 'src/utils';
 
 import { UnitEntity } from 'src/product/unit/entity/unit.entity';
 import { AdminEntity } from 'src/user/admin/entity/admin.entity';
@@ -90,11 +90,11 @@ export class ProductControllerController {
 	// READ - Get Unit with Search
 	@UseGuards(AdminGuard)
 	@Get('/unit/all')
-	async getAllUnit (@Query() filterDto: FilterDto): Promise<RESPONSE_I> {
+	async getPaginationUnit (@Query() filterDto: FilterDto): Promise<RESPONSE_I> {
 		const { search } = filterDto;
 		let status: HttpStatus = HttpStatus.OK;
 		let msg: string = 'Berhasil mendapatkan daftar unit';
-		const unit: Pagination<UnitEntity> = await this.unitService.getAllUnit(filterDto);
+		const unit: Pagination<UnitEntity> = await this.unitService.getPaginationUnit(filterDto);
 
 		if (unit.items.length === 0) {
 			msg = 'Daftar unit kosong';
@@ -102,6 +102,22 @@ export class ProductControllerController {
 			if (search) {
 				msg = 'Unit tidak ditemukan';
 			}
+		}
+
+		return RESPONSE(unit, msg, status);
+	}
+
+	// READ - Get Unit List
+	@UseGuards(AdminGuard)
+	@Get('/unit/list')
+	async getAllUnit (): Promise<RESPONSE_I> {
+		let status: HttpStatus = HttpStatus.OK;
+		let msg: string = 'Berhasil mendapatkan daftar unit';
+		const unit: UnitEntity[] = await this.unitService.getAllUnit();
+
+		if (unit.length === 0) {
+			msg = 'Daftar unit kosong';
+			status = HttpStatus.NO_CONTENT;
 		}
 
 		return RESPONSE(unit, msg, status);

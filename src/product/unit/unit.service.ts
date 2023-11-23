@@ -29,7 +29,7 @@ export class UnitService {
 	}
 
 	// READ
-	async getAllUnit (filterDto: FilterDto): Promise<Pagination<UnitEntity>> {
+	async getPaginationUnit (filterDto: FilterDto): Promise<Pagination<UnitEntity>> {
 		const { page, limit, search } = filterDto;
 		const options: IPaginationOptions = {
 			page: page || 1,
@@ -43,6 +43,10 @@ export class UnitService {
 		}
 
 		return await paginate<UnitEntity>(this.unitRepository, options);
+	}
+
+	async getAllUnit (): Promise<UnitEntity[]> {
+		return await this.unitRepository.find();
 	}
 
 	async getUnitById (id: string): Promise<UnitEntity | null> {
