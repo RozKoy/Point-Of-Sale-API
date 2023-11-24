@@ -6,8 +6,12 @@ import {
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
+import { 
+  ErrorI, 
+  MapError, 
+  HttpExceptionFilter 
+} from './utils';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './utils';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,13 +23,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       exceptionFactory: (errors) => {
-        const result: {property: string, message: string}[] = errors.map((error, index) => {
-          const length: number = Object.keys(error.constraints).length;
-          return {
-            property: error.property,
-            message: error.constraints[Object.keys(error.constraints)[length - 1]],
-          }
-        });
+        const result: ErrorI[] = MapError(errors);
         return new HttpException(result, HttpStatus.BAD_REQUEST);
       },
       stopAtFirstError: false,
