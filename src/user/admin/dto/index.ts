@@ -2,6 +2,7 @@ import {
 	Min,
 	IsEmail, 
 	IsNumber,
+	IsString,
 	MinLength, 
 	MaxLength,
 	IsOptional, 
@@ -19,12 +20,14 @@ import { Type } from 'class-transformer';
 export class IDDto {
 	@ApiProperty({ default: 'id' })
 	@IsNotEmpty({ message: 'ID wajib diisi' })
+	@IsString({ message: 'ID harus berupa string' })
 	id: string;
 }
 
 export class EmailDto {
 	@ApiProperty({ default: 'email@gmail.com' })
 	@IsNotEmpty({ message: 'Alamat email wajib diisi' })
+	@IsString({ message: 'Alamat email harus berupa string' })
 	@IsEmail({}, { message: 'Alamat email tidak sesuai' })
 	@MaxLength(255, { message: 'Alamat email tidak boleh melebihi $constraint1 karakter' })
 	email: string;
@@ -33,6 +36,7 @@ export class EmailDto {
 export class UsernameDto {
 	@ApiProperty({ default: 'username' })
 	@IsNotEmpty({ message: 'Nama pengguna wajib diisi' })
+	@IsString({ message: 'Nama pengguna harus berupa string' })
 	@MaxLength(255, { message: 'Nama pengguna tidak boleh melebihi $constraint1 karakter' })
 	username: string;
 }
@@ -40,6 +44,7 @@ export class UsernameDto {
 export class PasswordDto {
 	@ApiProperty({ default: 'password' })
 	@IsNotEmpty({ message: 'Kata sandi wajib diisi' })
+	@IsString({ message: 'Kata sandi harus berupa string' })
 	@MinLength(6, { message: 'Kata sandi tidak boleh kurang dari $constraint1 Karakter' })
 	password: string;
 }
@@ -47,12 +52,14 @@ export class PasswordDto {
 export class ImageDto {
 	@ApiProperty({ default: 'image' })
 	@IsNotEmpty({ message: 'Gambar wajib diisi' })
+	@IsString({ message: 'Gambar harus berupa string' })
 	image: string;
 }
 
 export class SearchDto {
 	@ApiPropertyOptional({ default: 'search' })
 	@IsOptional()
+	@IsString({ message: 'Pencarian harus berupa string' })
 	search: string;
 }
 

@@ -1,6 +1,7 @@
 import { 
 	Min,
 	IsNumber,
+	IsString,
 	MaxLength, 
 	IsNotEmpty,
 	IsOptional
@@ -17,12 +18,14 @@ import { Type } from 'class-transformer';
 export class IDDto {
 	@ApiProperty({ default: 'id' })
 	@IsNotEmpty({ message: 'ID wajib diisi' })
+	@IsString({ message: 'ID harus berupa string' })
 	id: string;
 }
 
 export class UsernameDto {
 	@ApiProperty({ default: 'username' })
 	@IsNotEmpty({ message: 'Nama pengguna wajib diisi' })
+	@IsString({ message: 'Nama pengguna harus berupa string' })
 	@MaxLength(255, { message: 'Nama pengguna tidak boleh melebihi $constraint1 karakter' })
 	username: string;
 }
@@ -30,12 +33,14 @@ export class UsernameDto {
 export class ImageDto {
 	@ApiProperty({ default: 'image' })
 	@IsNotEmpty({ message: 'Gambar wajib diisi' })
+	@IsString({ message: 'Gambar harus berupa string' })
 	image: string;
 }
 
 export class SearchDto {
 	@ApiPropertyOptional({ default: 'search' })
 	@IsOptional()
+	@IsString({ message: 'Pencarian harus berupa string' })
 	search: string;
 }
 

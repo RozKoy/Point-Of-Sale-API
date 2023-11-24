@@ -1,6 +1,7 @@
 import { 
 	Min,
 	IsNumber,
+	IsString,
 	MaxLength, 
 	IsNotEmpty,
 	IsOptional 
@@ -15,12 +16,14 @@ import { Type, Transform } from 'class-transformer';
 export class IDDto {
 	@ApiProperty({ default: 'id' })
 	@IsNotEmpty({ message: 'ID wajib diisi' })
+	@IsString({ message: 'ID harus berupa string' })
 	id: string;
 }
 
 export class UnitNameDto {
 	@ApiProperty({ default: 'Unit' })
 	@IsNotEmpty({ message: 'Unit wajib diisi' })
+	@IsString({ message: 'Unit harus berupa string' })
 	@MaxLength(255, { message: 'Unit tidak boleh melebihi $constraint1 karakter' })
 	@Transform(({ value }) => value.toLowerCase())
 	name: string;
@@ -29,6 +32,7 @@ export class UnitNameDto {
 export class CategoryNameDto {
 	@ApiProperty({ default: 'Kategori' })
 	@IsNotEmpty({ message: 'Kategori wajib diisi' })
+	@IsString({ message: 'Kategori harus berupa string' })
 	@MaxLength(255, { message: 'Kategori tidak boleh melebihi $constraint1 karakter' })
 	@Transform(({ value }) => value.toLowerCase())
 	name: string;
@@ -37,6 +41,7 @@ export class CategoryNameDto {
 export class SearchDto {
 	@ApiPropertyOptional({ default: 'Search' })
 	@IsOptional()
+	@IsString({ message: 'Pencarian harus berupa string' })
 	@MaxLength(255, { message: 'Pencarian tidak boleh melebihi $constraint1 karakter' })
 	@Transform(({ value }) => value.toLowerCase())
 	search: string;
