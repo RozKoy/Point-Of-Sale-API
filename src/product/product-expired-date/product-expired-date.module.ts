@@ -14,6 +14,6 @@ const imports = [TypeOrmModule.forFeature([ProductExpiredDateEntity])];
 
 @Module({
 	imports,
-  providers
+	providers
 })
 export class ProductExpiredDateModule {}
