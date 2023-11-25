@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { ProductEntity } from './entity/product.entity';
-import { CreateProductDto, UpdateProductDto } from './dto';
 import { AdminEntity } from 'src/user/admin/entity/admin.entity';
 
 @Injectable()
@@ -15,11 +14,14 @@ export class ProductService {
 
 	// CREATE
 	async createProduct (
-		author: AdminEntity, createProductDto: CreateProductDto
+		author: AdminEntity, 
+		name: string, 
+		image: string
 	): Promise<ProductEntity> 
 	{
 		const newProduct: ProductEntity = await this.productRepository.create({
-			...createProductDto,
+			name,
+			image,
 			author
 		});
 
@@ -49,14 +51,14 @@ export class ProductService {
 
 	// UPDATE
 	async updateProduct (
-		id: string, author: AdminEntity, updateProductDto: UpdateProductDto
+		id: string, 
+		author: AdminEntity, 
+		image: string
 	): Promise<ProductEntity> 
 	{
-		const { name, image } = updateProductDto;
 		const product: ProductEntity = await this.productRepository.findOneBy({ id });
 
 		product.author = author;
-		product.name = name ? name : product.name;
 		product.image = image ? image : product.image;
 
 		return await this.productRepository.save(product);
