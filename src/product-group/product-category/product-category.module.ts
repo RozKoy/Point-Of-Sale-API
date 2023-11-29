@@ -14,6 +14,7 @@ const imports = [TypeOrmModule.forFeature([ProductCategoryEntity])];
 
 @Module({
 	imports,
-	providers
+	providers,
+	exports: providers
 })
 export class ProductCategoryModule {}

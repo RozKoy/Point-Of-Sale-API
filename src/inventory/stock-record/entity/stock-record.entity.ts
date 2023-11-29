@@ -7,7 +7,7 @@ import {
 
 import { ParentEntity } from 'src/entity/parent';
 import { AdminEntity } from 'src/user/admin/entity/admin.entity';
-import { StockEntity } from 'src/inventory/stock/entity/stock.entity';
+import { ProductEntity } from 'src/product/product/entity/product.entity';
 
 export enum Mode {
 	PLUS = 'plus',
@@ -26,7 +26,7 @@ export class StockRecordEntity extends ParentEntity {
 	@JoinColumn({ name: 'author' })
 	author: AdminEntity;
 
-	@ManyToOne(() => StockEntity)
-	@JoinColumn({ name: 'stock' })
-	stock: StockEntity;
+	@ManyToOne(() => ProductEntity)
+	@JoinColumn({ name: 'product' })
+	product: ProductEntity;
 }

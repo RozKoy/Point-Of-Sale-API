@@ -1,8 +1,30 @@
 import { Module } from '@nestjs/common';
 
+import { UnitModule } from 'src/product/unit/unit.module';
+import { StockModule } from 'src/inventory/stock/stock.module';
+import { ProductModule } from 'src/product/product/product.module';
+import { CategoryModule } from 'src/product/category/category.module';
+import { ProductUnitModule } from 'src/product-group/product-unit/product-unit.module';
+import { ProductPrizeModule } from 'src/product-group/product-prize/product-prize.module';
+import { ProductCategoryModule } from 'src/product-group/product-category/product-category.module';
+import { ProductExpiredDateModule } from 'src/product/product-expired-date/product-expired-date.module';
+
 import { ProductGroupControllerController } from './product-group-controller.controller';
 
+const imports = [
+  UnitModule,
+  StockModule,
+  ProductModule,
+  CategoryModule,
+  ProductUnitModule,
+  ProductPrizeModule,
+  ProductCategoryModule,
+  ProductExpiredDateModule
+];
+const controllers = [ProductGroupControllerController];
+
 @Module({
-  controllers: [ProductGroupControllerController]
+  imports,
+  controllers
 })
 export class ProductGroupControllerModule {}
