@@ -44,7 +44,8 @@ export class ProductCategoryService {
 	): Promise<ProductCategoryEntity[]>
 	{
 		return await this.productCategoryRepository.find({
-			where: { product: Equal(product.id) }
+			where: { product: Equal(product.id) },
+			relations: { category: true }
 		});
 	}
 

@@ -49,6 +49,20 @@ export class ProductUnitService {
 		});
 	}
 
+	async getProductUnitByProduct (
+		product: ProductEntity
+	): Promise<ProductUnitEntity[]>
+	{
+		return await this.productUnitRepository.find({
+			where: {
+				product: Equal(product.id)
+			}, 
+			relations: { 
+				unit: true 
+			}
+		});
+	}
+
 	// UPDATE
 	async updateProductUnit (id: string, author: AdminEntity): Promise<ProductUnitEntity> {
 		const productUnit: ProductUnitEntity = await this.productUnitRepository.findOneBy({ id });

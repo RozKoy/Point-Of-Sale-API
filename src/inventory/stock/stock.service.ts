@@ -34,6 +34,14 @@ export class StockService {
 		return await this.stockRepository.findOne({
 			where: {
 				unit: Equal(unit.id)
+			}
+		});
+	}
+
+	async getStockByUnitWithDeleted (unit: ProductUnitEntity): Promise<StockEntity | null> {
+		return await this.stockRepository.findOne({
+			where: {
+				unit: Equal(unit.id)
 			},
 			withDeleted: true
 		})

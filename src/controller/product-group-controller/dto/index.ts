@@ -19,6 +19,13 @@ import {
 } from '@nestjs/swagger';
 import { Type, Transform } from 'class-transformer';
 
+export class IDDto {
+   @ApiProperty({ default: 'id' })
+   @IsNotEmpty({ message: 'ID wajib diisi' })
+   @IsString({ message: 'ID harus berupa string' })
+   id: string;
+}
+
 export class GroupDto {
    @ApiProperty({ default: 'Unit' })
    @IsNotEmpty({ message: 'Unit produk wajib diisi' })

@@ -30,17 +30,26 @@ export class ProductPrizeService {
 	}
 
 	// READ
-	async getProductPrizeByPrizeAndUnit (
-		unit: ProductUnitEntity,
-		prize: string
+	async getProductPrizeByUnitWithDeleted (
+		unit: ProductUnitEntity
 	): Promise<ProductPrizeEntity | null>
 	{
 		return await this.productPrizeRepository.findOne({
 			where: {
-				prize,
 				unit: Equal(unit.id)
 			},
 			withDeleted: true
+		});
+	}
+
+	async getProductPrizeByUnit (
+		unit: ProductUnitEntity
+	): Promise<ProductPrizeEntity | null>
+	{
+		return await this.productPrizeRepository.findOne({
+			where: {
+				unit: Equal(unit.id)
+			}
 		});
 	}
 

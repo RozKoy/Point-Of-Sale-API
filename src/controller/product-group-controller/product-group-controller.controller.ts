@@ -12,7 +12,11 @@ import {
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
-import { FilterDto, ProductDto } from './dto';
+import { 
+	IDDto,
+	FilterDto, 
+	ProductDto 
+} from './dto';
 
 import { 
 	GetUser, 
@@ -29,6 +33,7 @@ import { CategoryEntity } from 'src/product/category/entity/category.entity';
 import { ProductUnitEntity } from 'src/product-group/product-unit/entity/product-unit.entity';
 import { ProductPrizeEntity } from 'src/product-group/product-prize/entity/product-prize.entity';
 import { ProductCategoryEntity } from 'src/product-group/product-category/entity/product-category.entity';
+import { ProductExpiredDateEntity } from 'src/product/product-expired-date/entity/product-expired-date.entity';
 
 import { UnitService } from 'src/product/unit/unit.service';
 import { StockService } from 'src/inventory/stock/stock.service';
@@ -161,7 +166,7 @@ export class ProductGroupControllerController {
 			productUnitExists = await this.productUnitService.getProductUnitByProductAndUnit(product, unit);
 
 			// PRODUCT PRIZE GROUP
-			let productPrizeExists: ProductPrizeEntity | null = await this.productPrizeService.getProductPrizeByPrizeAndUnit(productUnitExists, temp.prize);
+			let productPrizeExists: ProductPrizeEntity | null = await this.productPrizeService.getProductPrizeByUnitWithDeleted(productUnitExists);
 			if (!productPrizeExists) {
 				await this.productPrizeService.createProductPrize(author, productUnitExists, temp.prize);
 			} else if (productPrizeExists) {
@@ -173,7 +178,7 @@ export class ProductGroupControllerController {
 			}
 
 			// PRODUCT STOCK GROUP
-			let productStockExists: StockEntity | null = await this.stockService.getStockByUnit(productUnitExists);
+			let productStockExists: StockEntity | null = await this.stockService.getStockByUnitWithDeleted(productUnitExists);
 			if (!productStockExists) {
 				await this.stockService.createStock(author, productUnitExists, temp.stock);
 			} else if (productStockExists) {
@@ -224,5 +229,39 @@ export class ProductGroupControllerController {
 		}
 
 		return RESPONSE(product, msg, status);
+	}
+
+	// READ - Get One Product Detail
+	@UseGuards(AdminGuard)
+	@Post('/one')
+	async getOneProductDetail (@Body() idDto: IDDto) {
+		const { id } = idDto;
+		const product: any = await this.productService.getProductById(id);
+
+		if (product) {
+			const categories: ProductCategoryEntity[] = await this.productCategoryService.getProductCategoryByProduct(product);
+			const expired_at: ProductExpiredDateEntity[] = await this.productExpiredDateService.getExpiredAtByProduct(product);
+			const unit: ProductUnitEntity[] = await this.productUnitService.getProductUnitByProduct(product);
+			product.category = [];
+			for (let temp of categories) {
+				product.category.push(temp.category);
+			}
+			product.group = [];
+			for (let temp of unit) {
+				const stock: StockEntity | null = await this.stockService.getStockByUnit(temp);
+				const prize: ProductPrizeEntity | null = await this.productPrizeService.getProductPrizeByUnit(temp);
+
+				if (stock && prize) {
+					const group: any = {
+						prize,
+						stock,
+						unit: temp.unit,
+					}
+					product.group.push(group);
+				}
+			}
+		}
+
+		return product;
 	}
 }
