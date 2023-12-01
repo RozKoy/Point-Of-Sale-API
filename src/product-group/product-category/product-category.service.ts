@@ -31,6 +31,14 @@ export class ProductCategoryService {
 	}
 
 	// READ
+	async getAll (): Promise<ProductCategoryEntity[]> {
+		return await this.productCategoryRepository.find({
+			relations: {
+				product: true,
+				category: true
+			}
+		});
+	}
 	async getProductCategoryByProduct (
 		product: ProductEntity
 	): Promise<ProductCategoryEntity[]>

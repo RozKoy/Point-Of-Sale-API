@@ -1,15 +1,18 @@
 import {
+	Get,
 	Body, 
 	Post,
+	Query,
 	Inject,
 	UseGuards,
 	Controller,
 	HttpStatus,
 	HttpException
 } from '@nestjs/common';
+import { Pagination } from 'nestjs-typeorm-paginate';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
-import { ProductDto } from './dto';
+import { FilterDto, ProductDto } from './dto';
 
 import { 
 	GetUser, 
@@ -68,6 +71,7 @@ export class ProductGroupControllerController {
 		if (condition) throw new HttpException(msg, HttpStatus.NOT_FOUND);
 	}
 
+	// CREATE - Add Product
 	@UseGuards(AdminGuard)
 	@Post('/add')
 	async addProduct (
@@ -184,5 +188,41 @@ export class ProductGroupControllerController {
 		const newProduct: ProductEntity = await this.productService.getTrashedProductByName(name);
 
 		return RESPONSE(newProduct, 'Berhasil menambah produk baru', HttpStatus.CREATED);
+	}
+
+	// READ - Get Product and Category
+	@UseGuards(AdminGuard)
+	@Get('/all')
+	async getProductAndCategory (@Query() filterDto: FilterDto): Promise<RESPONSE_I> {
+		const { search } = filterDto;
+		let status: HttpStatus = HttpStatus.OK;
+		let msg: string = 'Berhasil mendapatkan data produk dan kategori';
+		const product: Pagination<any> = await this.productService.getAllProductWithPagination(filterDto);
+
+		if (product.items.length > 0) {
+			const productCategories: any[] = await this.productCategoryService.getAll();
+
+			for (const temp of product.items) {
+				temp.categories = [];
+				for (let index = 0; index < productCategories.length; index++) {
+					if (temp.id === productCategories[index].product.id) {
+						temp.categories.push(productCategories[index].category);
+						productCategories.splice(index, 1);
+						index--;
+					}
+				}
+				if (temp.categories.length === 0) {
+					temp.categories.push({ name: 'Tidak Terkategori' });
+				}
+			}
+		} else {
+			status = HttpStatus.NO_CONTENT;
+			msg = 'Daftar produk kosong';
+			if (search) {
+				msg = 'Produk atau kategori tidak ditemukan';
+			}
+		}
+
+		return RESPONSE(product, msg, status);
 	}
 }
