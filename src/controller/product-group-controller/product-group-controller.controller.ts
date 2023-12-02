@@ -234,7 +234,7 @@ export class ProductGroupControllerController {
 	// READ - Get One Product Detail
 	@UseGuards(AdminGuard)
 	@Post('/one')
-	async getOneProductDetail (@Body() idDto: IDDto) {
+	async getOneProductDetail (@Body() idDto: IDDto): Promise<RESPONSE_I> {
 		const { id } = idDto;
 		const product: any = await this.productService.getProductById(id);
 
@@ -255,13 +255,16 @@ export class ProductGroupControllerController {
 					const group: any = {
 						prize,
 						stock,
+						id: temp.id,
 						unit: temp.unit,
 					}
 					product.group.push(group);
 				}
 			}
+
+			return RESPONSE(product, 'Berhasil mendapatkan detail produk', HttpStatus.OK);
 		}
 
-		return product;
+		throw new HttpException('Produk tidak dapat ditemukan', HttpStatus.NOT_FOUND);
 	}
 }
