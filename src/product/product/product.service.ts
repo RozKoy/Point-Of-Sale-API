@@ -75,7 +75,7 @@ export class ProductService {
 	async updateProduct (
 		id: string, 
 		author: AdminEntity, 
-		image: string
+		image?: string
 	): Promise<ProductEntity> 
 	{
 		const product: ProductEntity = await this.productRepository.findOneBy({ id });
