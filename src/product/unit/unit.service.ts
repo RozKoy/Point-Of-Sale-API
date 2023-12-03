@@ -38,15 +38,20 @@ export class UnitService {
 
 		if (search) {
 			return await paginate<UnitEntity>(this.unitRepository, options, {
-				where: { name: Like(`%${ search }%`) }
+				where: { name: Like(`%${ search }%`) },
+				order: { update_at: 'DESC' }
 			});
 		}
 
-		return await paginate<UnitEntity>(this.unitRepository, options);
+		return await paginate<UnitEntity>(this.unitRepository, options, {
+			order: { update_at: 'DESC' }
+		});
 	}
 
 	async getAllUnit (): Promise<UnitEntity[]> {
-		return await this.unitRepository.find();
+		return await this.unitRepository.find({
+			order: { update_at: 'DESC' }
+		});
 	}
 
 	async getUnitById (id: string): Promise<UnitEntity | null> {

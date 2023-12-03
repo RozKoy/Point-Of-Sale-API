@@ -81,12 +81,16 @@ export class AdminService {
 				where: [
 					{ role, email: Like(`%${ search }%`) },
 					{ role, username: Like(`%${ search }%`) }
-				]
+				],
+				order: {
+					update_at: 'DESC'
+				}
 			});
 		}
 
 		return await paginate<AdminEntity>(this.adminRepository, options, {
-			where: { role }
+			where: { role },
+			order: { update_at: 'DESC' }
 		});
 	}
 	

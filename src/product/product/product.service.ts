@@ -36,7 +36,9 @@ export class ProductService {
 
 	// READ
 	async getAllProduct (): Promise<ProductEntity[]> {
-		return await this.productRepository.find();
+		return await this.productRepository.find({
+			order: { update_at: 'DESC' }
+		});
 	}
 
 	async getAllProductWithPagination (filter: FilterDto): Promise<Pagination<ProductEntity>> {
@@ -48,11 +50,14 @@ export class ProductService {
 
 		if (search) {
 			return await paginate(this.productRepository, options, {
-				where: { name: Like(`%${ search }%`) }
+				where: { name: Like(`%${ search }%`) },
+				order: { update_at: 'DESC' }
 			});
 		}
 
-		return await paginate(this.productRepository, options);
+		return await paginate(this.productRepository, options, {
+			order: { update_at: 'DESC' }
+		});
 	}
 
 	async getProductById (id: string): Promise<ProductEntity | null> {

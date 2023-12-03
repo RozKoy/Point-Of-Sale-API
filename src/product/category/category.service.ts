@@ -38,15 +38,20 @@ export class CategoryService {
 
 		if (search) {
 			return await paginate<CategoryEntity>(this.categoryRepository, options, {
-				where: { name: Like(`%${ search }%`) }
+				where: { name: Like(`%${ search }%`) },
+				order: { update_at: 'DESC' }
 			});
 		}
 
-		return await paginate<CategoryEntity>(this.categoryRepository, options);
+		return await paginate<CategoryEntity>(this.categoryRepository, options, {
+			order: { update_at: 'DESC' }
+		});
 	}
 
 	async getAllCategory (): Promise<CategoryEntity[]> {
-		return await this.categoryRepository.find();
+		return await this.categoryRepository.find({
+			order: { update_at: 'DESC' }
+		});
 	}
 
 	async getCategoryById (id: string): Promise<CategoryEntity | null> {

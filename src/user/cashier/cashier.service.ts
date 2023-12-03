@@ -40,11 +40,14 @@ export class CashierService {
 
 		if (search) {
 			return await paginate<CashierEntity>(this.cashierRepository, options, {
-				where: { username: Like(`%${ search }%`) }
+				where: { username: Like(`%${ search }%`) },
+				order: { update_at: 'DESC' }
 			});
 		}
 
-		return await paginate<CashierEntity>(this.cashierRepository, options);
+		return await paginate<CashierEntity>(this.cashierRepository, options, {
+			order: { update_at: 'DESC' }
+		});
 	}
 
 	async getCashierById (id: string): Promise<CashierEntity | null> {
