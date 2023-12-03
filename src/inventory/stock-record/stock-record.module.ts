@@ -14,6 +14,7 @@ const imports = [TypeOrmModule.forFeature([StockRecordEntity])];
 
 @Module({
   imports,
-  providers
+  providers,
+  exports: providers
 })
 export class StockRecordModule {}

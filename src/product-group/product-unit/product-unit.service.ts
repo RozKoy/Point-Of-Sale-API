@@ -32,7 +32,13 @@ export class ProductUnitService {
 
 	// READ
 	async getProductUnitById (id: string): Promise<ProductUnitEntity | null> {
-		return await this.productUnitRepository.findOneBy({ id });
+		return await this.productUnitRepository.findOne({ 
+			where: { id },
+			relations: {
+				unit: true,
+				product: true
+			}
+		});
 	}
 
 	async getProductUnitByProductAndUnit (
