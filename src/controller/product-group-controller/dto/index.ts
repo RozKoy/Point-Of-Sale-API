@@ -42,7 +42,7 @@ export class GroupDto {
    @IsNotEmpty({ message: 'Harga produk wajib diisi' })
    @IsNumberString({}, { message: 'Harga produk harus berupa angka string' })
    @MaxLength(255, { message: 'Harga produk tidak boleh melebihi $constraint1 karakter' })
-   prize: string;
+   price: string;
 }
 
 export class ProductDto {

@@ -31,7 +31,7 @@ import { StockEntity } from 'src/inventory/stock/entity/stock.entity';
 import { ProductEntity } from 'src/product/product/entity/product.entity';
 import { CategoryEntity } from 'src/product/category/entity/category.entity';
 import { ProductUnitEntity } from 'src/product-group/product-unit/entity/product-unit.entity';
-import { ProductPrizeEntity } from 'src/product-group/product-prize/entity/product-prize.entity';
+import { ProductPriceEntity } from 'src/product-group/product-price/entity/product-price.entity';
 import { ProductCategoryEntity } from 'src/product-group/product-category/entity/product-category.entity';
 import { ProductExpiredDateEntity } from 'src/product/product-expired-date/entity/product-expired-date.entity';
 
@@ -40,7 +40,7 @@ import { StockService } from 'src/inventory/stock/stock.service';
 import { ProductService } from 'src/product/product/product.service';
 import { CategoryService } from 'src/product/category/category.service';
 import { ProductUnitService } from 'src/product-group/product-unit/product-unit.service';
-import { ProductPrizeService } from 'src/product-group/product-prize/product-prize.service';
+import { ProductPriceService } from 'src/product-group/product-price/product-price.service';
 import { ProductCategoryService } from 'src/product-group/product-category/product-category.service';
 import { ProductExpiredDateService } from 'src/product/product-expired-date/product-expired-date.service';
 
@@ -56,8 +56,8 @@ export class ProductGroupControllerController {
 		@Inject('CATEGORY_SERVICE') private readonly categoryService: CategoryService,
 		@Inject('PRODUCT_UNIT_SERVICE')
 		private readonly productUnitService: ProductUnitService,
-		@Inject('PRODUCT_PRIZE_SERVICE') 
-		private readonly productPrizeService: ProductPrizeService,
+		@Inject('PRODUCT_PRICE_SERVICE') 
+		private readonly productPriceService: ProductPriceService,
 		@Inject('PRODUCT_CATEGORY_SERVICE')
 		private readonly productCategoryService: ProductCategoryService,
 		@Inject('PRODUCT_EXPIRED_DATE_SERVICE')
@@ -109,11 +109,11 @@ export class ProductGroupControllerController {
 		for (let temp of group) {
 			this.throwBadRequest(!temp?.unit, 'Unit produk tidak valid');
 			this.throwBadRequest(!temp?.stock, 'Stok produk tidak valid');
-			this.throwBadRequest(!temp?.prize, 'Harga produk tidak valid');
+			this.throwBadRequest(!temp?.price, 'Harga produk tidak valid');
 			const stock: number = +temp.stock;
-			const prize: number = +temp.prize;
+			const price: number = +temp.price;
 			this.throwBadRequest(stock < 0 || !Number.isInteger(stock), 'Stock produk harus diatas 0 dan bilangan bulat');
-			this.throwBadRequest(prize < 0 || !Number.isInteger(prize), 'Harga produk harus diatas 0 dan bilangan bulat');
+			this.throwBadRequest(price < 0 || !Number.isInteger(price), 'Harga produk harus diatas 0 dan bilangan bulat');
 			const unitExists: UnitEntity | null = await this.unitService.getUnitById(temp.unit);
 			this.throwNotFound(!unitExists, 'Unit tidak dapat ditemukan');
 			this.throwBadRequest(unitArray.includes(temp.unit), 'Tidak boleh ada unit yang sama dalam satu produk');
@@ -150,7 +150,7 @@ export class ProductGroupControllerController {
 			await this.productExpiredDateService.createExpiredDate(author, product, expired_at);
 		}
 
-		// GROUP (UNIT, PRIZE, STOCK)
+		// GROUP (UNIT, PRICE, STOCK)
 		for (let temp of group) {
 			const unit: UnitEntity = await this.unitService.getUnitById(temp.unit);
 
@@ -165,16 +165,16 @@ export class ProductGroupControllerController {
 			}
 			productUnitExists = await this.productUnitService.getProductUnitByProductAndUnit(product, unit);
 
-			// PRODUCT PRIZE GROUP
-			let productPrizeExists: ProductPrizeEntity | null = await this.productPrizeService.getProductPrizeByUnitWithDeleted(productUnitExists);
-			if (!productPrizeExists) {
-				await this.productPrizeService.createProductPrize(author, productUnitExists, temp.prize);
-			} else if (productPrizeExists) {
-				const id: string = productPrizeExists.id;
-				if (productPrizeExists.delete_at) {
-					await this.productPrizeService.restore(id);
+			// PRODUCT PRICE GROUP
+			let productPriceExists: ProductPriceEntity | null = await this.productPriceService.getProductPriceByUnitWithDeleted(productUnitExists);
+			if (!productPriceExists) {
+				await this.productPriceService.createProductPrice(author, productUnitExists, temp.price);
+			} else if (productPriceExists) {
+				const id: string = productPriceExists.id;
+				if (productPriceExists.delete_at) {
+					await this.productPriceService.restore(id);
 				}
-				await this.productPrizeService.update(id, author, temp.prize);
+				await this.productPriceService.update(id, author, temp.price);
 			}
 
 			// PRODUCT STOCK GROUP
@@ -249,11 +249,11 @@ export class ProductGroupControllerController {
 			product.group = [];
 			for (let temp of unit) {
 				const stock: StockEntity | null = await this.stockService.getStockByUnit(temp);
-				const prize: ProductPrizeEntity | null = await this.productPrizeService.getProductPrizeByUnit(temp);
+				const price: ProductPriceEntity | null = await this.productPriceService.getProductPriceByUnit(temp);
 
-				if (stock && prize) {
+				if (stock && price) {
 					const group: any = {
-						prize,
+						price,
 						stock,
 						id: temp.id,
 						unit: temp.unit,

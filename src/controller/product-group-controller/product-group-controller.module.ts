@@ -5,7 +5,7 @@ import { StockModule } from 'src/inventory/stock/stock.module';
 import { ProductModule } from 'src/product/product/product.module';
 import { CategoryModule } from 'src/product/category/category.module';
 import { ProductUnitModule } from 'src/product-group/product-unit/product-unit.module';
-import { ProductPrizeModule } from 'src/product-group/product-prize/product-prize.module';
+import { ProductPriceModule } from 'src/product-group/product-price/product-price.module';
 import { ProductCategoryModule } from 'src/product-group/product-category/product-category.module';
 import { ProductExpiredDateModule } from 'src/product/product-expired-date/product-expired-date.module';
 
@@ -17,7 +17,7 @@ const imports = [
   ProductModule,
   CategoryModule,
   ProductUnitModule,
-  ProductPrizeModule,
+  ProductPriceModule,
   ProductCategoryModule,
   ProductExpiredDateModule
 ];

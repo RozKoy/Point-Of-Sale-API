@@ -20,7 +20,7 @@ import { InvoiceGroupModule } from './pos/invoice-group/invoice-group.module';
 import { InvoiceDeleteModule } from './pos/invoice-delete/invoice-delete.module';
 import { StockRecordModule } from './inventory/stock-record/stock-record.module';
 import { ProductUnitModule } from './product-group/product-unit/product-unit.module';
-import { ProductPrizeModule } from './product-group/product-prize/product-prize.module';
+import { ProductPriceModule } from './product-group/product-price/product-price.module';
 import { ProductCategoryModule } from './product-group/product-category/product-category.module';
 import { ProductExpiredDateModule } from './product/product-expired-date/product-expired-date.module';
 
@@ -53,7 +53,7 @@ import { ProductGroupControllerModule } from './controller/product-group-control
     ProductUnitModule,
     StockRecordModule, 
     InvoiceGroupModule, 
-    ProductPrizeModule, 
+    ProductPriceModule, 
     InvoiceDeleteModule, 
     ProductCategoryModule, 
     ProductExpiredDateModule, 

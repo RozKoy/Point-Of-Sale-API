@@ -10,10 +10,10 @@ import { ParentEntity } from 'src/entity/parent';
 import { AdminEntity } from 'src/user/admin/entity/admin.entity';
 import { ProductUnitEntity } from 'src/product-group/product-unit/entity/product-unit.entity';
 
-@Entity('product_prize_group')
-export class ProductPrizeEntity extends ParentEntity {
+@Entity('product_price_group')
+export class ProductPriceEntity extends ParentEntity {
 	@Column()
-	prize: string;
+	price: string;
 
 	@ManyToOne(() => AdminEntity)
 	@JoinColumn({ name: 'author' })
