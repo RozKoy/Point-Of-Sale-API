@@ -26,6 +26,7 @@ import { ProductExpiredDateModule } from './product/product-expired-date/product
 
 import { ProductControllerModule } from './controller/product-controller/product-controller.module';
 import { InventoryControllerModule } from './controller/inventory-controller/inventory-controller.module';
+import { NotificationControllerModule } from './controller/notification-controller/notification-controller.module';
 import { ProductGroupControllerModule } from './controller/product-group-controller/product-group-controller.module';
 
 @Module({
@@ -60,6 +61,7 @@ import { ProductGroupControllerModule } from './controller/product-group-control
 
     ProductControllerModule, 
     InventoryControllerModule, 
+    NotificationControllerModule, 
     ProductGroupControllerModule, 
   ]
 })
