@@ -52,7 +52,24 @@ export class ProductExpiredDateService {
 		});
 	}
 
+	// UPDATE
+	async updateExpiredAt (
+		id: string,
+		author: AdminEntity
+	): Promise<ProductExpiredDateEntity>
+	{
+		const expiredDate: ProductExpiredDateEntity = await this.expiredDateRespository.findOneBy({ id });
+
+		expiredDate.author = author;
+
+		return await this.expiredDateRespository.save(expiredDate);
+	}
+
 	// DELETE
+	async delete (id: string): Promise<any> {
+		return await this.expiredDateRespository.softDelete(id);
+	}
+
 	async deleteExpiredAtByTime (): Promise<void> {
 		const expiredDate: ProductExpiredDateEntity[] = await this.expiredDateRespository.findBy({
 			expired_at: Raw((alias) => `${ alias } <= NOW()`)

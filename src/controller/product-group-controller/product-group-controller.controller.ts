@@ -3,6 +3,7 @@ import {
 	Body, 
 	Post,
 	Query,
+	Delete,
 	Inject,
 	UseGuards,
 	Controller,
@@ -265,6 +266,74 @@ export class ProductGroupControllerController {
 			return RESPONSE(product, 'Berhasil mendapatkan detail produk', HttpStatus.OK);
 		}
 
-		throw new HttpException('Produk tidak dapat ditemukan', HttpStatus.NOT_FOUND);
+		this.throwNotFound(true, 'Produk tidak dapat ditemukan');
+	}
+
+	// DELETE - Delete Product Group
+	@UseGuards(AdminGuard)
+	@Delete('/delete')
+	async deleteProductGroup (
+		@Body() idDto: IDDto,
+		@GetUser() author: AdminEntity
+	): Promise<RESPONSE_I>
+	{
+		const { id } = idDto;
+
+		// Get Product
+		const product: ProductEntity | null = await this.productService.getProductById(id);
+		this.throwNotFound(!product, 'Produk tidak dapat ditemukan');
+
+		// Get Category Lists
+		const categories: ProductCategoryEntity[] = await this.productCategoryService.getProductCategoryByProduct(product);
+
+		// Get Expired Lists
+		const expired_at: ProductExpiredDateEntity[] = await this.productExpiredDateService.getExpiredAtByProduct(product);
+
+		// Get Unit of Product
+		const productUnit: ProductUnitEntity[] = await this.productUnitService.getProductUnitByProduct(product);
+
+		for (let unit of productUnit) {
+			// Get Price of Product Unit
+			const productPrice: ProductPriceEntity | null = await this.productPriceService.getProductPriceByUnit(unit);
+			this.throwNotFound(!productPrice, 'Harga produk untuk satuan ' + unit.unit.name + ' tidak dapat ditemukan');
+
+			// Get Stock of Product Unit
+			const productStock: StockEntity | null = await this.stockService.getStockByUnit(unit);
+			this.throwNotFound(!productStock, 'Stok produk untuk satuan ' + unit.unit.name + ' tidak dapat ditemukan');
+		}
+
+		// ACTION to DELETE
+
+		// Group
+		for (let unit of productUnit) {
+			const productPrice: ProductPriceEntity | null = await this.productPriceService.getProductPriceByUnit(unit);
+			await this.productPriceService.update(productPrice.id, author);
+			await this.productPriceService.delete(productPrice.id);
+
+			const productStock: StockEntity | null = await this.stockService.getStockByUnit(unit);
+			await this.stockService.update(productStock.id, author);
+			await this.stockService.delete(productStock.id);
+
+			await this.productUnitService.updateProductUnit(unit.id, author);
+			await this.productUnitService.delete(unit.id);
+		}
+
+		// Expired Date
+		for (let temp of expired_at) {
+			await this.productExpiredDateService.updateExpiredAt(temp.id, author);
+			await this.productExpiredDateService.delete(temp.id);
+		}
+
+		// Category
+		for (let temp of categories) {
+			await this.productCategoryService.updateProductCategory(temp.id, author);
+			await this.productCategoryService.deleteProductCategory(temp.id);
+		}
+
+		// Product
+		await this.productService.updateProduct(product.id, author);
+		await this.productService.deleteProduct(product.id);
+
+		return RESPONSE(true, 'Berhasil menghapus produk ' + product.name, HttpStatus.OK);
 	}
 }

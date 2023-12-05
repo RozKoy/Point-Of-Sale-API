@@ -68,6 +68,11 @@ export class ProductPriceService {
 		return await this.productPriceRepository.save(productPrice);
 	}
 
+	// DELETE
+	async delete (id: string): Promise<any> {
+		return await this.productPriceRepository.softDelete(id);
+	}
+
 	// RESTORE
 	async restore (id: string): Promise<any> {
 		return await this.productPriceRepository.restore(id);

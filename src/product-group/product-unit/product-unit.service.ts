@@ -78,6 +78,11 @@ export class ProductUnitService {
 		return await this.productUnitRepository.save(productUnit);
 	}
 
+	// DELETE
+	async delete (id: string): Promise<any> {
+		return await this.productUnitRepository.softDelete(id);
+	}
+
 	// RESTORE
 	async restoreProductUnit (id: string): Promise<any> {
 		return await this.productUnitRepository.restore(id);

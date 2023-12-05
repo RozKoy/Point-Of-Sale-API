@@ -51,7 +51,7 @@ export class StockService {
 	async update (
 		id: string,
 		author: AdminEntity,
-		stock: string
+		stock?: string
 	): Promise<StockEntity>
 	{
 		const productStock: StockEntity = await this.stockRepository.findOneBy({ id });
@@ -60,6 +60,11 @@ export class StockService {
 		productStock.author = author ? author : productStock.author;
 
 		return await this.stockRepository.save(productStock);
+	}
+
+	// DELETE
+	async delete (id: string): Promise<any> {
+		return await this.stockRepository.softDelete(id);
 	}
 
 	// RESTORE
