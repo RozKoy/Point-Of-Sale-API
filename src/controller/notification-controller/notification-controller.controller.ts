@@ -13,9 +13,11 @@ import {
 	AdminGuard 
 } from 'src/utils';
 
+import { ProductService } from 'src/product/product/product.service';
 import { InvoiceDeleteService } from 'src/pos/invoice-delete/invoice-delete.service';
 import { ProductExpiredDateService } from 'src/product/product-expired-date/product-expired-date.service';
 
+import { ProductEntity } from 'src/product/product/entity/product.entity';
 import { InvoiceDeleteEntity } from 'src/pos/invoice-delete/entity/invoice-delete.entity';
 import { ProductExpiredDateEntity } from 'src/product/product-expired-date/entity/product-expired-date.entity';
 
@@ -26,6 +28,8 @@ import { ProductExpiredDateEntity } from 'src/product/product-expired-date/entit
 @Controller('notification')
 export class NotificationControllerController {
 	constructor (
+		@Inject('PRODUCT_SERVICE')
+		private readonly productService: ProductService,
 		@Inject('INVOICE_DELETE_SERVICE')
 		private readonly invoiceDeleteService: InvoiceDeleteService,
 		@Inject('PRODUCT_EXPIRED_DATE_SERVICE')
@@ -35,8 +39,16 @@ export class NotificationControllerController {
 	// READ - Get Count of Notification
 	@Get('/count')
 	async getCountNotification (): Promise<RESPONSE_I> {
+		const products: ProductEntity[] = await this.productService.getAllProduct();
 		const invoiceDelete: InvoiceDeleteEntity[] = await this.invoiceDeleteService.getAllInvoiceDelete();
-		const expiredProduct: ProductExpiredDateEntity[] = await this.productExpiredAtService.getExpiredAtByTime();
+		const expiredProduct: ProductExpiredDateEntity[] = [];
+		for (let product of products) {
+			const expiredProductExists: ProductExpiredDateEntity[] = await this.productExpiredAtService.getExpiredAtByProductAndTime(product);
+			const length: number = expiredProductExists.length;
+			if (length !== 0) {
+				expiredProduct.push(expiredProductExists[length - 1]);
+			}
+		}
 
 		const notification: number = invoiceDelete.length + expiredProduct.length;
 

@@ -41,10 +41,15 @@ export class ProductExpiredDateService {
 		return await this.expiredDateRespository.findBy({ product: Equal(product.id) });
 	}
 
-	async getExpiredAtByTime (): Promise<ProductExpiredDateEntity[]> {
+	async getExpiredAtByProductAndTime (
+		product: ProductEntity
+	): Promise<ProductExpiredDateEntity[]> {
 		return await this.expiredDateRespository.find({
 			where: { 
-				expired_at: Raw((alias) => `${ alias } > NOW()`) 
+				product: Equal(product.id),
+				expired_at: Raw(
+					(alias) => `${ alias } BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 20 DAY)`
+				) 
 			},
 			order: {
 				expired_at: "DESC"
