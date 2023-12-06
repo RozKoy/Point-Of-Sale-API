@@ -36,7 +36,6 @@ import { AdminEntity, AdminRole } from './entity/admin.entity';
 
 @ApiBearerAuth()
 @ApiTags('Admin')
-@UseGuards(new AdminGuard())
 
 @Controller('admin')
 export class AdminController {
@@ -53,6 +52,7 @@ export class AdminController {
 	}
 
 	// CREATE - Add Admin
+	@UseGuards(AdminGuard)
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Post('/add')
 	async createAdmin (
@@ -75,6 +75,7 @@ export class AdminController {
 	}
 
 	// READ - Get Profile
+	@UseGuards(AdminGuard)
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Get('/profile')
 	getProfile (@GetUser() user: AdminEntity): RESPONSE_I {
@@ -84,6 +85,7 @@ export class AdminController {
 	}
 
 	// READ - Get Admin with Search
+	@UseGuards(AdminGuard)
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Get('/all')
 	async getAllAdmin (
@@ -113,6 +115,7 @@ export class AdminController {
 	}
 
 	// UPDATE
+	@UseGuards(AdminGuard)
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Put('/update')
 	async updateAdmin (
@@ -140,6 +143,7 @@ export class AdminController {
 	}
 
 	// DELETE
+	@UseGuards(AdminGuard)
 	@Delete('/delete')
 	async deleteAdmin (@Body() idDto: IDDto, @GetUser() user: AdminEntity): Promise<RESPONSE_I> {
 		if (this.isSuperAdmin(user.role)) {
@@ -155,15 +159,19 @@ export class AdminController {
 		}
 	}
 
-/*
 	// CREATE
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Post('/create/super')
 	async createSuperAdmin (@Body() createAdminDto: CreateAdminDto): Promise<RESPONSE_I> {
+		const filter: FilterDto = {
+			page: null,
+			limit: null,
+			search: null
+		};
 		const role: AdminRole = AdminRole.SUPERADMIN;
-		const superAdminExists: AdminEntity[] = await this.adminService.getAdminByRole(role);
+		const superAdminExists: Pagination<AdminEntity> = await this.adminService.getAdminByRole(role, filter);
 
-		if (superAdminExists.length === 0) {
+		if (superAdminExists.items.length === 0) {
 			const { email } = createAdminDto;
 			const adminExists: AdminEntity | null = await this.adminService.getTrashedAdminByEmail(email);
 
@@ -175,6 +183,7 @@ export class AdminController {
 
 		throw new HttpException('Tidak dapat membuat akun super admin', HttpStatus.CONFLICT);
 	}
+/*
 
 	// READ
 	@UseInterceptors(ClassSerializerInterceptor)
