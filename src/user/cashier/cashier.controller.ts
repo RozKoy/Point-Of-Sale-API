@@ -17,10 +17,12 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 import {
+	GetUser,
 	RESPONSE,
 	RESPONSE_I,
 	AdminGuard,
-	cashierCode 
+	cashierCode,
+	CashierGuard
 } from 'src/utils';
 import { 
 	IDDto,
@@ -69,6 +71,13 @@ export class CashierController {
 		}
 
 		throw new HttpException('Tidak dapat membuat akun kasir', HttpStatus.CONFLICT);
+	}
+
+	// READ - Get Cashier Profile
+	@UseGuards(CashierGuard) 
+	@Get('/profile')
+	getProfile (@GetUser() user: CashierEntity): RESPONSE_I {
+		return RESPONSE(user, 'Berhasil mendapatkan profil kasir', HttpStatus.OK);
 	}
 
 	// READ - Get Cashier with Search
