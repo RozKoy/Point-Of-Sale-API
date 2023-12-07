@@ -57,6 +57,19 @@ export class ProductExpiredDateService {
 		});
 	}
 
+	async getExpiredAtByProductTime (
+		product: ProductEntity,
+		date: Date
+	): Promise<ProductExpiredDateEntity | null>
+	{
+		return await this.expiredDateRespository.findOne({
+			where: {
+				product: Equal(product.id),
+				expired_at: date
+			}
+		});
+	}
+
 	// UPDATE
 	async updateExpiredAt (
 		id: string,

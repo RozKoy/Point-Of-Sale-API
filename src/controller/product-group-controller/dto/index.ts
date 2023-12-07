@@ -13,6 +13,7 @@ import {
    ValidateNested
 } from 'class-validator';
 import { 
+   OmitType,
    ApiProperty,
    IntersectionType, 
    ApiPropertyOptional 
@@ -122,3 +123,7 @@ export class PaginationDto {
 export class FilterDto extends IntersectionType(SearchDto, PaginationDto) {}
 
 export class SetGroupDto extends IntersectionType(IDDto, GroupDto) {}
+
+export class SetProductDto extends IntersectionType(IDDto, OmitType(ProductDto, [
+   'group'
+] as const)) {}

@@ -18,7 +18,8 @@ import {
 	IDDto,
 	FilterDto, 
 	ProductDto,
-	SetGroupDto
+	SetGroupDto,
+	SetProductDto
 } from './dto';
 
 import { 
@@ -272,6 +273,100 @@ export class ProductGroupControllerController {
 		}
 
 		this.throwNotFound(true, 'Produk tidak dapat ditemukan');
+	}
+
+	// UPDATE - Set Product
+	@UseGuards(AdminGuard)
+	@Put('/product-set')
+	async setProduct (
+		@Body() setProductDto: SetProductDto,
+		@GetUser() author: AdminEntity
+	): Promise<RESPONSE_I>
+	{
+		const { id, name, categories, expired_at, image } = setProductDto;
+
+		const oldProduct: ProductEntity | null = await this.productService.getProductById(id);
+		this.throwNotFound(!oldProduct, 'Produk tidak dapat ditemukan');
+
+		const categoryArray: CategoryEntity[] = [];
+		if (categories && categories?.length > 0) {
+			for (let temp of categories) {
+				this.throwBadRequest(typeof(temp) !== 'string', 'Array kategori harus berisi string');
+				const categoryExists: CategoryEntity | null = await this.categoryService.getCategoryById(temp);
+				this.throwNotFound(!categoryExists, 'Kategori tidak dapat ditemukan');
+				this.throwBadRequest(categoryArray.includes(categoryExists), 'Tidak boleh ada kategori yang sama dalam satu produk');
+				categoryArray.push(categoryExists);
+			}
+		}
+
+		if (oldProduct.name !== name) {
+			const productExists: ProductEntity | null = await this.productService.getTrashedProductByName(name);
+			if (!productExists) {
+				await this.productService.createProduct(author, name, image);
+			} else {
+				const productId: string = productExists.id;
+				if (productExists?.delete_at) {
+					await this.productService.retoreProduct(productId);
+				}
+				await this.productService.updateProduct(productId, author, image);
+			}
+		}
+
+		const newProduct: ProductEntity = await this.productService.getProductByName(name);
+
+		const productExpiredDate: ProductExpiredDateEntity | null = await this.productExpiredDateService.getExpiredAtByProductTime(newProduct, expired_at);
+		if (!productExpiredDate) {
+			await this.productExpiredDateService.createExpiredDate(author, newProduct, expired_at);
+		}
+
+		const categoryArrayExists: ProductCategoryEntity[] = await this.productCategoryService.getProductCategoryByProduct(newProduct);
+		for (let i = 0; i < categoryArrayExists.length; i++) {
+			for (let temp of categoryArray) {
+				if (categoryArrayExists[i].category.id === temp.id) {
+					categoryArrayExists.splice(i, 1);
+					i--;
+					break;
+				}
+			}
+		}
+
+		for (let temp of categoryArrayExists) {
+			await this.productCategoryService.updateProductCategory(temp.id, author);
+			await this.productCategoryService.deleteProductCategory(temp.id);
+		}
+
+		for (let temp of categoryArray) {
+			const productCategoryExists: ProductCategoryEntity | null = await this.productCategoryService.getProductCategoryByProductAndCategory(newProduct, temp);
+			if (!productCategoryExists) {
+				await this.productCategoryService.createProductCategory(author, newProduct, temp);
+			} else if (productCategoryExists?.delete_at) {
+				const categoryId: string = productCategoryExists.id;
+				await this.productCategoryService.restoreProductCategory(categoryId);
+				await this.productCategoryService.updateProductCategory(categoryId, author);
+			}
+		}
+
+		if (oldProduct.name !== name) {
+			const productUnitArray: ProductUnitEntity[] = await this.productUnitService.getProductUnitByProduct(oldProduct);
+
+			for (let temp of productUnitArray) {
+				const productUnitExists: ProductUnitEntity | null = await this.productUnitService.getProductUnitByProductAndUnit(newProduct, temp.unit);
+
+				if (!productUnitExists) {
+					await this.productUnitService.createProductUnit(author, newProduct, temp.unit);
+				} else if (productUnitExists?.delete_at) {
+					const unitId: string = productUnitExists.id;
+					await this.productUnitService.restoreProductUnit(unitId);
+					await this.productUnitService.updateProductUnit(unitId, author);
+				}
+
+				await this.productUnitService.delete(temp.id);
+			}
+
+			await this.productService.deleteProduct(oldProduct.id);
+		}
+
+		return RESPONSE(true, 'Berhasil mengubah produk', HttpStatus.OK);
 	}
 
 	// UPDATE - Set Group
