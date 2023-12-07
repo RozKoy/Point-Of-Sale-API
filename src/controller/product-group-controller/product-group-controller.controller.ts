@@ -218,9 +218,11 @@ export class ProductGroupControllerController {
 				temp.categories = [];
 				for (let index = 0; index < productCategories.length; index++) {
 					if (temp.id === productCategories[index].product.id) {
-						temp.categories.push(productCategories[index].category);
-						productCategories.splice(index, 1);
-						index--;
+						if (productCategories[index].category) {
+							temp.categories.push(productCategories[index].category);
+							productCategories.splice(index, 1);
+							index--;
+						}
 					}
 				}
 				if (temp.categories.length === 0) {
@@ -249,9 +251,11 @@ export class ProductGroupControllerController {
 			const categories: ProductCategoryEntity[] = await this.productCategoryService.getProductCategoryByProduct(product);
 			const expired_at: ProductExpiredDateEntity[] = await this.productExpiredDateService.getExpiredAtByProduct(product);
 			const unit: ProductUnitEntity[] = await this.productUnitService.getProductUnitByProduct(product);
-			product.category = [];
+			product.categories = [];
 			for (let temp of categories) {
-				product.category.push(temp.category);
+				if (temp.category) {
+					product.categories.push(temp.category);
+				}
 			}
 			product.group = [];
 			for (let temp of unit) {
@@ -259,13 +263,15 @@ export class ProductGroupControllerController {
 				const price: ProductPriceEntity | null = await this.productPriceService.getProductPriceByUnit(temp);
 
 				if (stock && price) {
-					const group: any = {
-						price,
-						stock,
-						id: temp.id,
-						unit: temp.unit,
+					if (temp.unit) {
+						const group: any = {
+							price,
+							stock,
+							id: temp.id,
+							unit: temp.unit,
+						}
+						product.group.push(group);
 					}
-					product.group.push(group);
 				}
 			}
 
