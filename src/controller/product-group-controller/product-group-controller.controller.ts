@@ -1,5 +1,6 @@
 import {
 	Get,
+	Put,
 	Body, 
 	Post,
 	Query,
@@ -16,7 +17,8 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { 
 	IDDto,
 	FilterDto, 
-	ProductDto 
+	ProductDto,
+	SetGroupDto
 } from './dto';
 
 import { 
@@ -77,6 +79,11 @@ export class ProductGroupControllerController {
 		if (condition) throw new HttpException(msg, HttpStatus.NOT_FOUND);
 	}
 
+	checkNum (data: string, alias: string): void {
+		const num: number = +data;
+		this.throwBadRequest(num < 0 || !Number.isInteger(num), alias + ' harus diatas 0 dan bilangan bulat');
+	}
+
 	// CREATE - Add Product
 	@UseGuards(AdminGuard)
 	@Post('/add')
@@ -111,10 +118,8 @@ export class ProductGroupControllerController {
 			this.throwBadRequest(!temp?.unit, 'Unit produk tidak valid');
 			this.throwBadRequest(!temp?.stock, 'Stok produk tidak valid');
 			this.throwBadRequest(!temp?.price, 'Harga produk tidak valid');
-			const stock: number = +temp.stock;
-			const price: number = +temp.price;
-			this.throwBadRequest(stock < 0 || !Number.isInteger(stock), 'Stock produk harus diatas 0 dan bilangan bulat');
-			this.throwBadRequest(price < 0 || !Number.isInteger(price), 'Harga produk harus diatas 0 dan bilangan bulat');
+			this.checkNum(temp.stock, 'Stok produk');
+			this.checkNum(temp.price, 'Harga produk');
 			const unitExists: UnitEntity | null = await this.unitService.getUnitById(temp.unit);
 			this.throwNotFound(!unitExists, 'Unit tidak dapat ditemukan');
 			this.throwBadRequest(unitArray.includes(temp.unit), 'Tidak boleh ada unit yang sama dalam satu produk');
@@ -267,6 +272,61 @@ export class ProductGroupControllerController {
 		}
 
 		this.throwNotFound(true, 'Produk tidak dapat ditemukan');
+	}
+
+	// UPDATE - Set Group
+	@UseGuards(AdminGuard)
+	@Put('/group-set')
+	async setGroupProduct (
+		@Body() setGroupDto: SetGroupDto, 
+		@GetUser() author: AdminEntity
+	): Promise<RESPONSE_I> 
+	{
+		const { id, unit, price, stock } = setGroupDto;
+
+		const product: ProductEntity | null = await this.productService.getProductById(id);
+		this.throwNotFound(!product, 'Produk tidak dapat ditemukan');
+
+		const unitExists: UnitEntity | null = await this.unitService.getUnitById(unit);
+		this.throwNotFound(!unitExists, 'Unit tidak dapat ditemukan');
+
+		this.checkNum(stock, 'Stok produk');
+		this.checkNum(price, 'Harga produk');
+
+		const productUnitExists: ProductUnitEntity | null = await this.productUnitService.getProductUnitByProductAndUnit(product, unitExists);
+		if (!productUnitExists) {
+			await this.productUnitService.createProductUnit(author, product, unitExists);
+		} else if (productUnitExists && productUnitExists?.delete_at) {
+			await this.productUnitService.restoreProductUnit(productUnitExists.id);
+			await this.productUnitService.updateProductUnit(productUnitExists.id, author);
+		}
+		const productUnit: ProductUnitEntity = await this.productUnitService.getProductUnitByProductAndUnit(product, unitExists);
+
+		const stockExists: StockEntity | null = await this.stockService.getStockByUnitWithDeleted(productUnit);
+
+		if (!stockExists) {
+			await this.stockService.createStock(author, productUnit, stock);
+		} else {
+			const stockId: string = stockExists.id;
+			if (stockExists?.delete_at) {
+				await this.stockService.restore(stockId);
+			}
+			await this.stockService.update(stockId, author, stock);
+		}
+
+		const priceExists: ProductPriceEntity | null = await this.productPriceService.getProductPriceByUnitWithDeleted(productUnit);
+
+		if (!priceExists) {
+			await this.productPriceService.createProductPrice(author, productUnit, price);
+		} else {
+			const priceId: string = priceExists.id;
+			if (priceExists?.delete_at) {
+				await this.productPriceService.restore(priceId);
+			}
+			await this.productPriceService.update(priceId, author, price);
+		}
+
+		return RESPONSE(true, 'Berhasil menambahkan grup dalam produk', HttpStatus.CREATED);
 	}
 
 	// DELETE - Delete Product Group

@@ -120,3 +120,5 @@ export class PaginationDto {
 }
 
 export class FilterDto extends IntersectionType(SearchDto, PaginationDto) {}
+
+export class SetGroupDto extends IntersectionType(IDDto, GroupDto) {}
