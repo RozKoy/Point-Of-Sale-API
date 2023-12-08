@@ -16,7 +16,6 @@ import { SoldRecordModule } from './pos/sold-record/sold-record.module';
 import { CashOnHandModule } from './pos/cash-on-hand/cash-on-hand.module';
 import { InvoiceListModule } from './pos/invoice-list/invoice-list.module';
 import { CashierAuthModule } from './auth/cashier-auth/cashier-auth.module';
-import { InvoiceGroupModule } from './pos/invoice-group/invoice-group.module';
 import { InvoiceDeleteModule } from './pos/invoice-delete/invoice-delete.module';
 import { StockRecordModule } from './inventory/stock-record/stock-record.module';
 import { ProductUnitModule } from './product-group/product-unit/product-unit.module';
@@ -56,7 +55,6 @@ import { ProductGroupControllerModule } from './controller/product-group-control
     InvoiceListModule, 
     ProductUnitModule,
     StockRecordModule, 
-    InvoiceGroupModule, 
     ProductPriceModule, 
     InvoiceDeleteModule, 
     ProductCategoryModule, 
