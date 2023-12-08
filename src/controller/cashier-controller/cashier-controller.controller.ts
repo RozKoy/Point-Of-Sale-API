@@ -19,9 +19,11 @@ import {
 
 import { SetCashOnHandDto } from './dto';
 
+import { InvoiceEntity } from 'src/pos/invoice/entity/invoice.entity';
 import { CashierEntity } from 'src/user/cashier/entity/cashier.entity';
 import { CashOnHandEntity } from 'src/pos/cash-on-hand/entity/cash-on-hand.entity';
 
+import { InvoiceService } from 'src/pos/invoice/invoice.service';
 import { CashOnHandService } from 'src/pos/cash-on-hand/cash-on-hand.service';
 
 @ApiBearerAuth()
@@ -31,6 +33,8 @@ import { CashOnHandService } from 'src/pos/cash-on-hand/cash-on-hand.service';
 @Controller('pos/cashier')
 export class CashierControllerController {
 	constructor (
+		@Inject('INVOICE_SERVICE')
+		private readonly invoiceService: InvoiceService,
 		@Inject('CASH_ON_HAND_SERVICE')
 		private readonly cashOnHandService: CashOnHandService
 	) {}
@@ -74,5 +78,18 @@ export class CashierControllerController {
 		this.throwNotFound(!cashOnHand, 'Uang ditangan tidak dapat ditemukan');
 
 		return RESPONSE(cashOnHand?.cash_on_hand, 'Berhasil mendapatkan uang ditangan', HttpStatus.OK);
+	}
+
+	// READ - Get Daily Income
+	@Get('/income/get')
+	async getDailyIncome (@GetUser() cashier: CashierEntity): Promise<RESPONSE_I> {
+		const invoiceArray: InvoiceEntity[] = await this.invoiceService.getDailyInvoiceByCashier(cashier);
+
+		let sumIncome: number = 0;
+		for (let temp of invoiceArray) {
+			sumIncome += parseInt(temp.sum);
+		}
+
+		return RESPONSE(sumIncome, 'Berhasil mendapatkan jumlah pendapatan', HttpStatus.OK);
 	}
 }

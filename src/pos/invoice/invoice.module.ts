@@ -14,6 +14,7 @@ const imports = [TypeOrmModule.forFeature([InvoiceEntity])];
 
 @Module({
   imports,
-  providers
+  providers,
+  exports: providers
 })
 export class InvoiceModule {}
