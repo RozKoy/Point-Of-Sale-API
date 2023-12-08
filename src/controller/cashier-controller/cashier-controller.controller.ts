@@ -1,4 +1,5 @@
 import {
+	Get,
 	Body, 
 	Post,
 	Inject, 
@@ -42,6 +43,10 @@ export class CashierControllerController {
 		if (condition) throw new HttpException(msg, HttpStatus.CONFLICT);
 	}
 
+	throwNotFound (condition: boolean, msg: string): void {
+		if (condition) throw new HttpException(msg, HttpStatus.NOT_FOUND);
+	}
+
 	// CREATE - Set Cashier Cash On Hand
 	@Post('/cash-on-hand/set')
 	async setCashOnHand (
@@ -59,5 +64,15 @@ export class CashierControllerController {
 		const newCashOnHand: CashOnHandEntity = await this.cashOnHandService.addCashOnHand(cashier, cash_on_hand);
 
 		return RESPONSE(newCashOnHand, 'Berhasil menambahkan uang ditangan', HttpStatus.CREATED);
+	}
+
+	// READ - Get Cash On Hand
+	@Get('/cash-on-hand/get')
+	async getCashOnHand (@GetUser() cashier: CashierEntity): Promise<RESPONSE_I> {
+		const cashOnHand: CashOnHandEntity | null = await this.cashOnHandService.getCashOnHandByCashier(cashier);
+
+		this.throwNotFound(!cashOnHand, 'Uang ditangan tidak dapat ditemukan');
+
+		return RESPONSE(cashOnHand?.cash_on_hand, 'Berhasil mendapatkan uang ditangan', HttpStatus.OK);
 	}
 }
