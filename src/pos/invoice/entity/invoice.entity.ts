@@ -20,6 +20,6 @@ export class InvoiceEntity extends ParentEntity {
 	discount: string;
 
 	@ManyToOne(() => CashierEntity)
-	@JoinColumn({ name: 'author' })
-	author: CashierEntity;
+	@JoinColumn({ name: 'cashier' })
+	cashier: CashierEntity;
 }

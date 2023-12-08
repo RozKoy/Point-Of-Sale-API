@@ -16,8 +16,8 @@ export class InvoiceDeleteEntity extends ParentEntity {
 	message: string;
 
 	@ManyToOne(() => CashierEntity)
-	@JoinColumn({ name: 'author' })
-	author: CashierEntity;
+	@JoinColumn({ name: 'cashier' })
+	cashier: CashierEntity;
 
 	@OneToOne(() => InvoiceEntity)
 	@JoinColumn({ name: 'invoice' })
