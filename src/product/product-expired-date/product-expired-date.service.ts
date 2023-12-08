@@ -38,7 +38,14 @@ export class ProductExpiredDateService {
 		product: ProductEntity
 	): Promise<ProductExpiredDateEntity[]>
 	{
-		return await this.expiredDateRespository.findBy({ product: Equal(product.id) });
+		return await this.expiredDateRespository.find({ 
+			where: {
+				product: Equal(product.id) 
+			},
+			order: {
+				expired_at: "DESC"
+			}
+		});
 	}
 
 	async getExpiredAtByProductAndTime (
