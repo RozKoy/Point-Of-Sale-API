@@ -11,6 +11,9 @@ import { PassportStrategy } from '@nestjs/passport';
 import { AdminService } from 'src/user/admin/admin.service';
 import { CashierService } from 'src/user/cashier/cashier.service';
 
+import { AdminEntity } from 'src/user/admin/entity/admin.entity';
+import { CashierEntity } from 'src/user/cashier/entity/cashier.entity';
+
 @Injectable()
 export class AdminJwtStrategy extends PassportStrategy(Strategy, 'ADMIN') {
 	constructor (
@@ -20,8 +23,8 @@ export class AdminJwtStrategy extends PassportStrategy(Strategy, 'ADMIN') {
 		super(configService.get('jwtStrategy'));
 	}
 
-	async validate (payload: any) {
-		const admin = await this.adminService.getAdminById(payload.sub);
+	async validate (payload: any): Promise<AdminEntity> {
+		const admin: AdminEntity | null = await this.adminService.getAdminById(payload.sub);
 
 		if (admin) {
 			return admin;
@@ -40,8 +43,8 @@ export class CashierJwtStrategy extends PassportStrategy(Strategy, 'CASHIER') {
 		super(configService.get('jwtStrategy'));
 	}
 
-	async validate (payload: any) {
-		const cashier = await this.cashierService.getCashierById(payload.sub);
+	async validate (payload: any): Promise<CashierEntity> {
+		const cashier: CashierEntity | null = await this.cashierService.getCashierById(payload.sub);
 
 		if (cashier) {
 			return cashier;

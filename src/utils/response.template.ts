@@ -10,7 +10,11 @@ export interface RESPONSE_I {
 	statusCode: number;
 };
 
-export const RESPONSE = (data: any, message: string, statusCode: number): RESPONSE_I => {
+export const RESPONSE = (
+	data: any, 
+	message: string, 
+	statusCode: number
+): RESPONSE_I => {
 	return {
 		data,
 		message,
