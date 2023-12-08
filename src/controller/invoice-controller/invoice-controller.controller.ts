@@ -5,7 +5,8 @@ import {
 	Inject,
 	UseGuards,
 	Controller,
-	HttpStatus 
+	HttpStatus,
+	HttpException
 } from '@nestjs/common';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
@@ -16,7 +17,11 @@ import {
 	AdminGuard
 } from 'src/utils';
 
-import { PaginationDto, IntervalDateDto } from './dto';
+import { 
+	IDDto,
+	PaginationDto, 
+	IntervalDateDto 
+} from './dto';
 
 import { InvoiceService } from 'src/pos/invoice/invoice.service';
 import { InvoiceListService } from 'src/pos/invoice-list/invoice-list.service';
@@ -46,6 +51,10 @@ export class InvoiceControllerController {
 		@Inject('INVOICE_DELETE_SERVICE')
 		private readonly invoiceDeleteService: InvoiceDeleteService
 	) {}
+
+	throwNotFound (condition: boolean, msg: string): void {
+		if (condition) throw new HttpException(msg, HttpStatus.NOT_FOUND);
+	}
 
 	// READ - Get All Invoice with Filter
 	@Post('/all')
@@ -87,5 +96,41 @@ export class InvoiceControllerController {
 		}
 
 		return RESPONSE(invoices, 'Berhasil mendapatkan daftar invoice', HttpStatus.OK);
+	}
+
+	// READ - Get Invoice Detail
+	@Post('/detail')
+	async getDetailInvoice (
+		@Body() idDto: IDDto,
+		@Query() paginationDto: PaginationDto
+	): Promise<RESPONSE_I> 
+	{
+		const { id } = idDto;
+
+		const invoice: any | null = await this.invoiceService.getInvoiceById(id);
+		this.throwNotFound(!invoice, 'Invoice tidak dapat ditemukan');
+
+		const invoiceList: Pagination<InvoiceListEntity> = await this.invoiceListService.getInvoiceListByInvoiceWithDeleted(invoice, paginationDto);
+
+		invoice.products = [];
+		for (let temp of invoiceList.items) {
+			const sum: number = parseInt(temp.sum);
+			const unit: string = temp.unit.unit.name;
+			const name: string = temp.unit.product.name;
+			const quantity: number = parseInt(temp.quantity);
+			const price: number = Math.floor(sum / quantity);
+			
+			invoice.products.push({
+				sum,
+				unit,
+				name,
+				price,
+				quantity
+			});
+		}
+
+		invoice.meta = invoiceList.meta;
+
+		return RESPONSE(invoice, 'Berhasil mendapatkan informasi invoice lengkap', HttpStatus.OK);
 	}
 }

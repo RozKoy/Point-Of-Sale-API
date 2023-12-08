@@ -70,4 +70,8 @@ export class InvoiceService {
 			}
 		});
 	}
+
+	async getInvoiceById (id: string): Promise<InvoiceEntity | null> {
+		return await this.invoiceRepository.findOneBy({ id });
+	}
 }
