@@ -434,7 +434,7 @@ export class ProductGroupControllerController {
 	}
 
 	// DELETE - Delete Product Group
-	@Delete('/delete')
+	@Delete('/product-delete')
 	async deleteProductGroup (
 		@Body() idDto: IDDto,
 		@GetUser() author: AdminEntity
@@ -498,5 +498,22 @@ export class ProductGroupControllerController {
 		await this.productService.deleteProduct(product.id);
 
 		return RESPONSE(true, 'Berhasil menghapus produk ' + product.name, HttpStatus.OK);
+	}
+
+	// DELETE - Delete Group
+	@Delete('/group-delete')
+	async deleteGroup (
+		@Body() idDto: IDDto,
+		@GetUser() author: AdminEntity
+	): Promise<RESPONSE_I>
+	{
+		const { id } = idDto;
+		const productUnitExists: ProductUnitEntity | null = await this.productUnitService.getProductUnitById(id);
+		this.throwNotFound(!productUnitExists, 'Grup produk tidak dapat ditemukan');
+
+		await this.productUnitService.updateProductUnit(id, author);
+		await this.productUnitService.delete(id);
+
+		return RESPONSE(true, 'Berhasil menghapus grup produk', HttpStatus.OK);
 	}
 }
