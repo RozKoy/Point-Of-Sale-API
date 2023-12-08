@@ -1,6 +1,6 @@
 import { 
-	Get,
 	Body,
+	Post,
 	Query,
 	Inject,
 	UseGuards,
@@ -26,6 +26,12 @@ import { InvoiceEntity } from 'src/pos/invoice/entity/invoice.entity';
 import { InvoiceListEntity } from 'src/pos/invoice-list/entity/invoice-list.entity';
 import { InvoiceDeleteEntity } from 'src/pos/invoice-delete/entity/invoice-delete.entity';
 
+enum STATUS {
+	SUCCESS = 'success',
+	PENDING = 'pending',
+	DELETED = 'deleted'
+};
+
 @ApiBearerAuth()
 @ApiTags('Invoice')
 @UseGuards(AdminGuard)
@@ -42,18 +48,12 @@ export class InvoiceControllerController {
 	) {}
 
 	// READ - Get All Invoice with Filter
-	@Get('/all')
+	@Post('/all')
 	async getAllInvoice (
 		@Body() intervalDto: IntervalDateDto,
 		@Query() paginationDto: PaginationDto
 	): Promise<RESPONSE_I>
 	{
-		enum STATUS {
-			SUCCESS = 'success',
-			PENDING = 'pending',
-			DELETED = 'deleted'
-		};
-		
 		const { to, from } = intervalDto;
 		const invoices: any = await this.invoiceService.getAllInvoice(intervalDto, paginationDto);
 		
