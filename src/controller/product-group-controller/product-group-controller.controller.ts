@@ -50,6 +50,7 @@ import { ProductExpiredDateService } from 'src/product/product-expired-date/prod
 
 @ApiBearerAuth()
 @ApiTags('Product Group')
+@UseGuards(new AdminGuard())
 
 @Controller('product/group')
 export class ProductGroupControllerController {
@@ -86,7 +87,6 @@ export class ProductGroupControllerController {
 	}
 
 	// CREATE - Add Product
-	@UseGuards(AdminGuard)
 	@Post('/add')
 	async addProduct (
 		@Body() productDto: ProductDto, @GetUser() author: AdminEntity
@@ -203,7 +203,6 @@ export class ProductGroupControllerController {
 	}
 
 	// READ - Get Product and Category
-	@UseGuards(AdminGuard)
 	@Get('/all')
 	async getProductAndCategory (@Query() filterDto: FilterDto): Promise<RESPONSE_I> {
 		const { search } = filterDto;
@@ -241,7 +240,6 @@ export class ProductGroupControllerController {
 	}
 
 	// READ - Get One Product Detail
-	@UseGuards(AdminGuard)
 	@Post('/one')
 	async getOneProductDetail (@Body() idDto: IDDto): Promise<RESPONSE_I> {
 		const { id } = idDto;
@@ -289,7 +287,6 @@ export class ProductGroupControllerController {
 	}
 
 	// UPDATE - Set Product
-	@UseGuards(AdminGuard)
 	@Put('/product-set')
 	async setProduct (
 		@Body() setProductDto: SetProductDto,
@@ -383,7 +380,6 @@ export class ProductGroupControllerController {
 	}
 
 	// UPDATE - Set Group
-	@UseGuards(AdminGuard)
 	@Put('/group-set')
 	async setGroupProduct (
 		@Body() setGroupDto: SetGroupDto, 
@@ -438,7 +434,6 @@ export class ProductGroupControllerController {
 	}
 
 	// DELETE - Delete Product Group
-	@UseGuards(AdminGuard)
 	@Delete('/delete')
 	async deleteProductGroup (
 		@Body() idDto: IDDto,
