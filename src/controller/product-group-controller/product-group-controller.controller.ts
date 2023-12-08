@@ -251,12 +251,19 @@ export class ProductGroupControllerController {
 			const categories: ProductCategoryEntity[] = await this.productCategoryService.getProductCategoryByProduct(product);
 			const expired_at: ProductExpiredDateEntity[] = await this.productExpiredDateService.getExpiredAtByProduct(product);
 			const unit: ProductUnitEntity[] = await this.productUnitService.getProductUnitByProduct(product);
+
+			const length: number = expired_at.length;
+			if (length !== 0) {
+				product.expired_at = expired_at[length - 1].expired_at || null;
+			}
+
 			product.categories = [];
 			for (let temp of categories) {
 				if (temp.category) {
 					product.categories.push(temp.category);
 				}
 			}
+
 			product.group = [];
 			for (let temp of unit) {
 				const stock: StockEntity | null = await this.stockService.getStockByUnit(temp);
