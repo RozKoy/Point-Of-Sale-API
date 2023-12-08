@@ -26,6 +26,7 @@ import { ProductExpiredDateModule } from './product/product-expired-date/product
 
 import { PosControllerModule } from './controller/pos-controller/pos-controller.module';
 import { ProductControllerModule } from './controller/product-controller/product-controller.module';
+import { InvoiceControllerModule } from './controller/invoice-controller/invoice-controller.module';
 import { CashierControllerModule } from './controller/cashier-controller/cashier-controller.module';
 import { InventoryControllerModule } from './controller/inventory-controller/inventory-controller.module';
 import { NotificationControllerModule } from './controller/notification-controller/notification-controller.module';
@@ -64,6 +65,7 @@ import { ProductGroupControllerModule } from './controller/product-group-control
     PosControllerModule, 
     ProductControllerModule, 
     CashierControllerModule, 
+    InvoiceControllerModule, 
     InventoryControllerModule, 
     NotificationControllerModule, 
     ProductGroupControllerModule, 
