@@ -14,6 +14,7 @@ const imports = [TypeOrmModule.forFeature([CashOnHandEntity])];
 
 @Module({
   imports,
-  providers
+  providers,
+  exports: providers
 })
 export class CashOnHandModule {}
