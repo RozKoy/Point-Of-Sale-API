@@ -24,6 +24,7 @@ import { ProductPriceModule } from './product-group/product-price/product-price.
 import { ProductCategoryModule } from './product-group/product-category/product-category.module';
 import { ProductExpiredDateModule } from './product/product-expired-date/product-expired-date.module';
 
+import { PosControllerModule } from './controller/pos-controller/pos-controller.module';
 import { ProductControllerModule } from './controller/product-controller/product-controller.module';
 import { CashierControllerModule } from './controller/cashier-controller/cashier-controller.module';
 import { InventoryControllerModule } from './controller/inventory-controller/inventory-controller.module';
@@ -60,6 +61,7 @@ import { ProductGroupControllerModule } from './controller/product-group-control
     ProductCategoryModule, 
     ProductExpiredDateModule, 
 
+    PosControllerModule, 
     ProductControllerModule, 
     CashierControllerModule, 
     InventoryControllerModule, 
