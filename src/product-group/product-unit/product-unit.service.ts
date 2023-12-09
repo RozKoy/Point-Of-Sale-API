@@ -55,7 +55,7 @@ export class ProductUnitService {
 		});
 	}
 
-	async getProductUnitByProduct (
+	async getProductUnitByProductWithDeleted (
 		product: ProductEntity
 	): Promise<ProductUnitEntity[]>
 	{
@@ -65,7 +65,8 @@ export class ProductUnitService {
 			}, 
 			relations: { 
 				unit: true 
-			}
+			},
+			withDeleted: true
 		});
 	}
 

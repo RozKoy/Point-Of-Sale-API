@@ -248,7 +248,7 @@ export class ProductGroupControllerController {
 		if (product) {
 			const categories: ProductCategoryEntity[] = await this.productCategoryService.getProductCategoryByProduct(product);
 			const expired_at: ProductExpiredDateEntity[] = await this.productExpiredDateService.getExpiredAtByProduct(product);
-			const unit: ProductUnitEntity[] = await this.productUnitService.getProductUnitByProduct(product);
+			const unit: ProductUnitEntity[] = await this.productUnitService.getProductUnitByProductWithDeleted(product);
 
 			const length: number = expired_at.length;
 			if (length !== 0) {
@@ -264,6 +264,7 @@ export class ProductGroupControllerController {
 
 			product.group = [];
 			for (let temp of unit) {
+				if (temp.delete_at) { continue; }
 				const stock: StockEntity | null = await this.stockService.getStockByUnit(temp);
 				const price: ProductPriceEntity | null = await this.productPriceService.getProductPriceByUnit(temp);
 
@@ -357,9 +358,10 @@ export class ProductGroupControllerController {
 		}
 
 		if (oldProduct.name !== name) {
-			const productUnitArray: ProductUnitEntity[] = await this.productUnitService.getProductUnitByProduct(oldProduct);
+			const productUnitArray: ProductUnitEntity[] = await this.productUnitService.getProductUnitByProductWithDeleted(oldProduct);
 
 			for (let temp of productUnitArray) {
+				if (temp.delete_at) { continue; }
 				const productUnitExists: ProductUnitEntity | null = await this.productUnitService.getProductUnitByProductAndUnit(newProduct, temp.unit);
 
 				if (!productUnitExists) {
@@ -453,9 +455,10 @@ export class ProductGroupControllerController {
 		const expired_at: ProductExpiredDateEntity[] = await this.productExpiredDateService.getExpiredAtByProduct(product);
 
 		// Get Unit of Product
-		const productUnit: ProductUnitEntity[] = await this.productUnitService.getProductUnitByProduct(product);
+		const productUnit: ProductUnitEntity[] = await this.productUnitService.getProductUnitByProductWithDeleted(product);
 
 		for (let unit of productUnit) {
+			if (unit.delete_at) { continue; }
 			// Get Price of Product Unit
 			const productPrice: ProductPriceEntity | null = await this.productPriceService.getProductPriceByUnit(unit);
 			this.throwNotFound(!productPrice, 'Harga produk untuk satuan ' + unit.unit.name + ' tidak dapat ditemukan');

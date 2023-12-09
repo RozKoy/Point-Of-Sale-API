@@ -41,6 +41,25 @@ export class ProductService {
 		});
 	}
 
+	async getAllProductOrderByCount (): Promise<ProductEntity[]> {
+		return await this.productRepository.find({
+			order: {
+				count: 'DESC'
+			}
+		});
+	}
+
+	async getAllProductWithSearch (search: string): Promise<ProductEntity[]> {
+		return await this.productRepository.find({
+			where: { 
+				name: Like(`%${ search }%`) 
+			},
+			order: { 
+				count: 'DESC' 
+			}
+		});
+	}
+
 	async getAllProductWithPagination (filter: FilterDto): Promise<Pagination<ProductEntity>> {
 		const { page, limit, search } = filter;
 		const options: IPaginationOptions = {
