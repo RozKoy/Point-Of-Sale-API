@@ -1,4 +1,5 @@
 import { 
+	Put,
 	Body,
 	Post,
 	Query,
@@ -12,6 +13,7 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 import { 
+	GetUser,
 	RESPONSE,
 	RESPONSE_I,
 	AdminGuard
@@ -27,6 +29,7 @@ import { InvoiceService } from 'src/pos/invoice/invoice.service';
 import { InvoiceListService } from 'src/pos/invoice-list/invoice-list.service';
 import { InvoiceDeleteService } from 'src/pos/invoice-delete/invoice-delete.service';
 
+import { AdminEntity } from 'src/user/admin/entity/admin.entity';
 import { InvoiceEntity } from 'src/pos/invoice/entity/invoice.entity';
 import { InvoiceListEntity } from 'src/pos/invoice-list/entity/invoice-list.entity';
 import { InvoiceDeleteEntity } from 'src/pos/invoice-delete/entity/invoice-delete.entity';
@@ -132,5 +135,25 @@ export class InvoiceControllerController {
 		invoice.meta = invoiceList.meta;
 
 		return RESPONSE(invoice, 'Berhasil mendapatkan informasi invoice lengkap', HttpStatus.OK);
+	}
+
+	// UPDATE - Confirmation Delete Request
+	@Put('/delete-invoice/confirm')
+	async confirmDeleteInvoice (
+		@Body() idDto: IDDto,
+		@GetUser() author: AdminEntity
+	): Promise<RESPONSE_I>
+	{
+		const { id } = idDto;
+		const invoice: InvoiceEntity | null = await this.invoiceService.getInvoiceByIdWithDeleted(id);
+		this.throwNotFound(!invoice || !invoice?.delete_at, 'Invoice tidak dapat ditemukan');
+
+		const reqDelete: InvoiceDeleteEntity | null = await this.invoiceDeleteService.getInvoiceDeleteByInvoice(invoice);
+		this.throwNotFound(!reqDelete, 'Invoice tidak dapat dihapus');
+
+		await this.invoiceDeleteService.update(reqDelete.id, author);
+		await this.invoiceDeleteService.delete(reqDelete.id);
+
+		return RESPONSE(true, 'Berhasil melakukan konfirmasi hapus invoice', HttpStatus.OK);
 	}
 }
