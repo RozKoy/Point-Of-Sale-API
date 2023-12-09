@@ -23,7 +23,7 @@ export class InvoiceService {
 	) {}
 
 	// READ
-	async getAllInvoice (
+	async getAllInvoiceWithDeleted (
 		intervalDto: IntervalDateDto,
 		paginationDto: PaginationDto
 	): Promise<Pagination<InvoiceEntity>> 

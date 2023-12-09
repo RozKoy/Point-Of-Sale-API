@@ -67,10 +67,14 @@ export class InvoiceControllerController {
 	): Promise<RESPONSE_I>
 	{
 		const { to, from } = intervalDto;
-		const invoices: any = await this.invoiceService.getAllInvoice(intervalDto, paginationDto);
+		const invoices: any = await this.invoiceService.getAllInvoiceWithDeleted(intervalDto, paginationDto);
 		
 		const length: number = invoices.items.length;
 		if (length !== 0) {
+			invoices.to_date_req = to;
+			invoices.from_date_req = from;
+			invoices.to_date = invoices.items[0].create_at;
+			invoices.from_date = invoices.items[length - 1].create_at;
 			for (let i = 0; i < length; i++) {
 				const invoice: InvoiceEntity = invoices.items[i];
 				
