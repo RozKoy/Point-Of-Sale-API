@@ -81,4 +81,9 @@ export class InvoiceService {
 			withDeleted: true
 		});
 	}
+
+	// RESTORE
+	async restore (id: string): Promise<any> {
+		return await this.invoiceRepository.restore(id);
+	}
 }

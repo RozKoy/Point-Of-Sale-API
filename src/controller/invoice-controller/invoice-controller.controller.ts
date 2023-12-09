@@ -156,4 +156,25 @@ export class InvoiceControllerController {
 
 		return RESPONSE(true, 'Berhasil melakukan konfirmasi hapus invoice', HttpStatus.OK);
 	}
+
+	// UPDATE - Rejected Delete Request
+	@Put('/delete-invoice/reject')
+	async rejectedDeleteInvoice (
+		@Body() idDto: IDDto,
+		@GetUser() author: AdminEntity
+	): Promise<RESPONSE_I>
+	{
+		const { id } = idDto;
+		const invoice: InvoiceEntity | null = await this.invoiceService.getInvoiceByIdWithDeleted(id);
+		this.throwNotFound(!invoice || !invoice?.delete_at, 'Invoice tidak dapat ditemukan');
+
+		const reqDelete: InvoiceDeleteEntity | null = await this.invoiceDeleteService.getInvoiceDeleteByInvoice(invoice);
+		this.throwNotFound(!reqDelete, 'Permintaan hapus invoice tidak dapat ditemukan');
+
+		await this.invoiceDeleteService.update(reqDelete.id, author);
+		await this.invoiceDeleteService.delete(reqDelete.id);
+		await this.invoiceService.restore(invoice.id);
+
+		return RESPONSE(true, 'Berhasil menolak permintaan hapus invoice', HttpStatus.OK);
+	}
 }
