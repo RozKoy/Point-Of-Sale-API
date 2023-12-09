@@ -59,6 +59,67 @@ export class InvoiceControllerController {
 		if (condition) throw new HttpException(msg, HttpStatus.NOT_FOUND);
 	}
 
+	// READ - Get Report
+	@Post('/report')
+	async getReport (
+		@Body() intervalDto: IntervalDateDto
+	): Promise<RESPONSE_I>
+	{
+		const { to, from } = intervalDto;
+		const invoices: InvoiceEntity[] = await this.invoiceService.getAllInvoice(intervalDto);
+
+		let income: number = 0;
+		let discount: number = 0;
+		let product_count: number = 0;
+		let invoice_success: number = 0;
+		let products: Record<any, any> = {};
+		for (let temp of invoices) {
+			if (!temp.delete_at) {
+				invoice_success++;
+				income += parseInt(temp.sum);
+				discount += parseInt(temp.discount);
+
+				const invoiceList: InvoiceListEntity[] = await this.invoiceListService.getInvoiceListByInvoiceWithDeleted(temp);
+				for (let list of invoiceList) {
+					const price: number = parseInt(list.sum);
+					const quantity: number = parseInt(list.quantity);
+					const productName: string = list.unit.product.name;
+					
+					if (!products?.productName) {
+						products.productName = {
+							price: 0,
+							quantity: 0
+						};
+					} else {
+						products.productName.price += price;
+						products.productName.quantity += quantity;
+					}
+					product_count += quantity;
+				}
+			}
+		}
+		const invoice_count: number = invoices.length;
+		const invoice_failed: number = invoice_count - invoice_success;
+		const average_income: number = income / invoice_count;
+
+		const data: Record<any, any> = {
+			income,
+			discount,
+			products,
+			product_count,
+			invoice_count,
+			invoice_failed,
+			average_income,
+			invoice_success,
+			to_date_req: to,
+			from_date_req: from,
+			to_date: invoices[0].create_at,
+			from_date: invoices[invoice_count - 1].create_at
+		};
+
+		return RESPONSE(data, 'Berhasil mendapatkan laporan', HttpStatus.OK);
+	}
+
 	// READ - Get All Invoice with Filter
 	@Post('/all')
 	async getAllInvoice (
@@ -117,7 +178,7 @@ export class InvoiceControllerController {
 		const invoice: any | null = await this.invoiceService.getInvoiceById(id);
 		this.throwNotFound(!invoice, 'Invoice tidak dapat ditemukan');
 
-		const invoiceList: Pagination<InvoiceListEntity> = await this.invoiceListService.getInvoiceListByInvoiceWithDeleted(invoice, paginationDto);
+		const invoiceList: Pagination<InvoiceListEntity> = await this.invoiceListService.getInvoiceListByInvoiceWithDeletedAndPagination(invoice, paginationDto);
 
 		invoice.products = [];
 		for (let temp of invoiceList.items) {

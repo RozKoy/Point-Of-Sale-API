@@ -23,6 +23,34 @@ export class InvoiceService {
 	) {}
 
 	// READ
+	async getAllInvoice (
+		intervalDto: IntervalDateDto
+	): Promise<InvoiceEntity[]>
+	{
+		const { to, from } = intervalDto;
+
+		if (to && from) {
+			return await this.invoiceRepository.find({
+				where: {
+					create_at: Raw(
+						(alias) => `CAST(${ alias } as DATE) BETWEEN CAST(${ from } as DATE) AND CAST(${ to } as DATE)`
+					)
+				},
+				order: {
+					create_at: "DESC"
+				},
+				withDeleted: true
+			});
+		}
+
+		return await this.invoiceRepository.find({
+			order: {
+				create_at: 'DESC'
+			},
+			withDeleted: true
+		});
+	}
+
 	async getAllInvoiceWithDeleted (
 		intervalDto: IntervalDateDto,
 		paginationDto: PaginationDto

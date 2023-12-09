@@ -29,6 +29,22 @@ export class InvoiceListService {
 	}
 
 	async getInvoiceListByInvoiceWithDeleted (
+		invoice: InvoiceEntity
+	): Promise<InvoiceListEntity[]>
+	{
+		return await this.invoiceListRepository.find({
+			where: { invoice: Equal(invoice.id) },
+			relations: {
+				unit: {
+					unit: true,
+					product: true
+				}
+			},
+			withDeleted: true
+		});
+	}
+
+	async getInvoiceListByInvoiceWithDeletedAndPagination (
 		invoice: InvoiceEntity,
 		paginationDto: PaginationDto
 	): Promise<Pagination<InvoiceListEntity>>
