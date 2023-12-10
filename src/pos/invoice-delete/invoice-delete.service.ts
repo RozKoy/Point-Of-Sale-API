@@ -18,11 +18,16 @@ export class InvoiceDeleteService {
 		return await this.invoiceDeleteRepository.find({ relations: { invoice: true } });
 	}
 
-	async getInvoiceDeleteByInvoice (
+	async getInvoiceDeleteByInvoiceWithDeleted (
 		invoice: InvoiceEntity
 	): Promise<InvoiceDeleteEntity | null>
 	{
-		return await this.invoiceDeleteRepository.findOneBy({ invoice: Equal(invoice.id) });
+		return await this.invoiceDeleteRepository.findOne({ 
+			where: {
+				invoice: Equal(invoice.id) 
+			},
+			withDeleted: true
+		});
 	}
 
 	// UPDATE

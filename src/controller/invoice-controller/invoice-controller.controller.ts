@@ -130,14 +130,31 @@ export class InvoiceControllerController {
 		const { to, from } = intervalDto;
 		const invoices: any = await this.invoiceService.getAllInvoiceWithDeleted(intervalDto, paginationDto);
 		
-		const length: number = invoices.items.length;
+		let length: number = invoices.items.length;
 		if (length !== 0) {
 			invoices.to_date_req = to;
 			invoices.from_date_req = from;
 			invoices.to_date = invoices.items[0].create_at;
 			invoices.from_date = invoices.items[length - 1].create_at;
 			for (let i = 0; i < length; i++) {
+				let status: STATUS = STATUS.SUCCESS;
 				const invoice: InvoiceEntity = invoices.items[i];
+
+				if (invoice.delete_at) {
+					const reqDelete: InvoiceDeleteEntity | null = await this.invoiceDeleteService.getInvoiceDeleteByInvoiceWithDeleted(invoice);
+
+					if (!reqDelete?.delete_at) {
+						status = STATUS.PENDING;
+					} else if (reqDelete?.delete_at) {
+						status = STATUS.DELETED;
+					} else {
+						invoices.items.splice(i, 1);
+						i--;
+						length--;
+						continue;
+					}
+				}
+				invoices.items[i].status = status;
 				
 				invoices.items[i].product = 0;
 				invoices.items[i].sum = parseInt(invoice.sum);
@@ -148,18 +165,6 @@ export class InvoiceControllerController {
 					const quantity: number = parseInt(temp.quantity);
 					invoices.items[i].product += quantity;
 				}
-
-				let status: STATUS = STATUS.SUCCESS;
-				if (invoice.delete_at) {
-					const reqDelete: InvoiceDeleteEntity | null = await this.invoiceDeleteService.getInvoiceDeleteByInvoice(invoice);
-
-					if (reqDelete) {
-						status = STATUS.PENDING;
-					} else {
-						status = STATUS.DELETED;
-					}
-				}
-				invoices.items[i].status = status;
 			}
 		}
 
@@ -213,8 +218,8 @@ export class InvoiceControllerController {
 		const invoice: InvoiceEntity | null = await this.invoiceService.getInvoiceByIdWithDeleted(id);
 		this.throwNotFound(!invoice || !invoice?.delete_at, 'Invoice tidak dapat ditemukan');
 
-		const reqDelete: InvoiceDeleteEntity | null = await this.invoiceDeleteService.getInvoiceDeleteByInvoice(invoice);
-		this.throwNotFound(!reqDelete, 'Invoice tidak dapat dihapus');
+		const reqDelete: InvoiceDeleteEntity | null = await this.invoiceDeleteService.getInvoiceDeleteByInvoiceWithDeleted(invoice);
+		this.throwNotFound(!reqDelete || reqDelete?.delete_at !== null, 'Invoice tidak dapat dihapus');
 
 		await this.invoiceDeleteService.update(reqDelete.id, author);
 		await this.invoiceDeleteService.delete(reqDelete.id);
@@ -233,8 +238,8 @@ export class InvoiceControllerController {
 		const invoice: InvoiceEntity | null = await this.invoiceService.getInvoiceByIdWithDeleted(id);
 		this.throwNotFound(!invoice || !invoice?.delete_at, 'Invoice tidak dapat ditemukan');
 
-		const reqDelete: InvoiceDeleteEntity | null = await this.invoiceDeleteService.getInvoiceDeleteByInvoice(invoice);
-		this.throwNotFound(!reqDelete, 'Permintaan hapus invoice tidak dapat ditemukan');
+		const reqDelete: InvoiceDeleteEntity | null = await this.invoiceDeleteService.getInvoiceDeleteByInvoiceWithDeleted(invoice);
+		this.throwNotFound(!reqDelete || reqDelete?.delete_at !== null, 'Permintaan hapus invoice tidak dapat ditemukan');
 
 		await this.invoiceDeleteService.update(reqDelete.id, author);
 		await this.invoiceDeleteService.delete(reqDelete.id);
