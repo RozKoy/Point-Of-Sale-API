@@ -90,6 +90,7 @@ export class PosControllerController {
 			if (products[i].group.length === 0) {
 				products.splice(i, 1);
 				i--;
+				length--;
 			}
 		}
 
