@@ -24,6 +24,19 @@ export class DraftService {
 	) {}
 
 	// READ
+	async getDraftById (
+		id: string,
+		cashier: CashierEntity
+	): Promise<InvoiceDraftEntity | null>
+	{
+		return await this.invoiceDraftRepository.findOne({
+			where: {
+				id,
+				cashier: Equal(cashier.id)
+			}
+		});
+	}
+
 	async getAllDraftPaginationWithDeleted (
 		cashier: CashierEntity,
 		paginationDto: PaginationDto
@@ -71,5 +84,10 @@ export class DraftService {
 			},
 			withDeleted: true
 		});
+	}
+
+	// DELETE
+	async delete (id: string): Promise<any> {
+		return await this.invoiceDraftRepository.softDelete(id);
 	}
 }

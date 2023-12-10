@@ -1,10 +1,13 @@
 import { 
 	Get,
+	Body,
 	Query,
+	Delete,
 	Inject,
 	UseGuards,
 	Controller,
-	HttpStatus
+	HttpStatus,
+	HttpException
 } from '@nestjs/common';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
@@ -16,7 +19,11 @@ import {
 	CashierGuard 
 } from 'src/utils';
 
-import { SearchDto, PaginationDto } from './dto';
+import { 
+	IDDto,
+	SearchDto, 
+	PaginationDto 
+} from './dto';
 
 import { DraftService } from 'src/pos/draft/draft.service';
 import { StockService } from 'src/inventory/stock/stock.service';
@@ -53,6 +60,10 @@ export class PosControllerController {
 		@Inject('PRODUCT_PRICE_SERVICE') 
 		private readonly productPriceService: ProductPriceService
 	) {}
+
+	throwNotFound (condition: boolean, msg: string): void {
+		if (condition) throw new HttpException(msg, HttpStatus.NOT_FOUND);
+	}
 
 	// READ - Get All Product with Search
 	@Get('/product/all')
@@ -137,9 +148,9 @@ export class PosControllerController {
 
 		for (let temp of draft.items) {
 			if (temp.delete_at === null) {
+				const id: string = temp.id;
 				const groupDraft: any[] = [];
 				const time: Date = temp.create_at;
-				const id: string = temp.invoice.id;
 				const invoice: string = temp.invoice.code;
 
 				const invoiceList: InvoiceListEntity[] = await this.invoiceListService.getInvoiceListByInvoiceWithDeleted(temp.invoice);
@@ -166,5 +177,21 @@ export class PosControllerController {
 		}
 
 		return RESPONSE(data, 'Berhasil mendapatkan daftar draft', HttpStatus.OK);
+	}
+
+	// DELETE - Delete Draft
+	@Delete('/draft/delete')
+	async deleteDraft (
+		@Body() idDto: IDDto,
+		@GetUser() cashier: CashierEntity
+	): Promise<RESPONSE_I>
+	{
+		const { id } = idDto;
+		const invoiceDraft: InvoiceDraftEntity | null = await this.draftService.getDraftById(id, cashier);
+		this.throwNotFound(!invoiceDraft, 'Tidak dapat menemukan draft');
+
+		await this.draftService.delete(id);
+
+		return RESPONSE(true, 'Berhasil menghapus draft', HttpStatus.OK);
 	}
 }

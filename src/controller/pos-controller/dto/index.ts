@@ -3,10 +3,18 @@ import {
 	IsNumber,
 	IsString,
 	MaxLength,
+	IsNotEmpty,
 	IsOptional
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+export class IDDto {
+   @ApiProperty({ default: 'id' })
+   @IsNotEmpty({ message: 'ID wajib diisi' })
+   @IsString({ message: 'ID harus berupa string' })
+   id: string;
+}
 
 export class SearchDto {
 	@ApiPropertyOptional({ default: 'Search' })
