@@ -6,6 +6,7 @@ import {
 	Controller,
 	HttpStatus
 } from '@nestjs/common';
+import { Pagination } from 'nestjs-typeorm-paginate';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 import { 
@@ -15,11 +16,12 @@ import {
 	CashierGuard 
 } from 'src/utils';
 
-import { SearchDto } from './dto';
+import { SearchDto, PaginationDto } from './dto';
 
 import { DraftService } from 'src/pos/draft/draft.service';
 import { StockService } from 'src/inventory/stock/stock.service';
 import { ProductService } from 'src/product/product/product.service';
+import { InvoiceListService } from 'src/pos/invoice-list/invoice-list.service';
 import { ProductUnitService } from 'src/product-group/product-unit/product-unit.service';
 import { ProductPriceService } from 'src/product-group/product-price/product-price.service';
 
@@ -27,6 +29,7 @@ import { StockEntity } from 'src/inventory/stock/entity/stock.entity';
 import { CashierEntity } from 'src/user/cashier/entity/cashier.entity';
 import { InvoiceDraftEntity } from 'src/pos/draft/entity/draft.entity';
 import { ProductEntity } from 'src/product/product/entity/product.entity';
+import { InvoiceListEntity } from 'src/pos/invoice-list/entity/invoice-list.entity';
 import { ProductUnitEntity } from 'src/product-group/product-unit/entity/product-unit.entity';
 import { ProductPriceEntity } from 'src/product-group/product-price/entity/product-price.entity';
 
@@ -45,6 +48,8 @@ export class PosControllerController {
 		private readonly productService: ProductService,
 		@Inject('PRODUCT_UNIT_SERVICE')
 		private readonly productUnitService: ProductUnitService,
+		@Inject('INVOICE_LIST_SERVICE')
+		private readonly invoiceListService: InvoiceListService,
 		@Inject('PRODUCT_PRICE_SERVICE') 
 		private readonly productPriceService: ProductPriceService
 	) {}
@@ -115,5 +120,51 @@ export class PosControllerController {
 		const count: number = data.length;
 
 		return RESPONSE(count, 'Berhasil menghitung jumlah draft', HttpStatus.OK);
+	}
+
+	// READ - Get All Draft with Pagination
+	@Get('/draft/all')
+	async getAllDraftWithPagination (
+		@GetUser() cashier: CashierEntity,
+		@Query() paginationDto: PaginationDto
+	): Promise<RESPONSE_I>
+	{
+		const draft: Pagination<InvoiceDraftEntity> = await this.draftService.getAllDraftPaginationWithDeleted(cashier, paginationDto);
+		const data: Record<any, any> = {
+			items: [],
+			meta: draft.meta
+		};
+
+		for (let temp of draft.items) {
+			if (temp.delete_at === null) {
+				const groupDraft: any[] = [];
+				const time: Date = temp.create_at;
+				const id: string = temp.invoice.id;
+				const invoice: string = temp.invoice.code;
+
+				const invoiceList: InvoiceListEntity[] = await this.invoiceListService.getInvoiceListByInvoiceWithDeleted(temp.invoice);
+				for (let list of invoiceList) {
+					const tempData: Record<any, any> = {
+						id: list.id,
+						name: list.unit.product.name,
+						quantity: parseInt(list.quantity),
+						group: [{
+							id: list.unit.id,
+							unit: list.unit.unit.name,
+							price: Math.floor(parseInt(list.sum) / parseInt(list.quantity))
+						}]
+					};
+					groupDraft.push(tempData);
+				}
+				data.items.push({
+					id,
+					time,
+					invoice,
+					groupDraft
+				});
+			}
+		}
+
+		return RESPONSE(data, 'Berhasil mendapatkan daftar draft', HttpStatus.OK);
 	}
 }
