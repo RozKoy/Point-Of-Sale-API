@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { Configuration, TypeOrmConfig } from './config';
 
+import { DraftModule } from './pos/draft/draft.module';
 import { AdminModule } from './user/admin/admin.module';
 import { UnitModule } from './product/unit/unit.module';
 import { StockModule } from './inventory/stock/stock.module';
@@ -43,6 +44,7 @@ import { ProductGroupControllerModule } from './controller/product-group-control
     UnitModule, 
     AdminModule, 
     StockModule, 
+    DraftModule, 
     CashierModule, 
     InvoiceModule, 
     ProductModule,
