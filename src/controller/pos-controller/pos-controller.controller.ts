@@ -9,6 +9,7 @@ import {
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 import { 
+	GetUser,
 	RESPONSE,
 	RESPONSE_I,
 	CashierGuard 
@@ -16,12 +17,15 @@ import {
 
 import { SearchDto } from './dto';
 
+import { DraftService } from 'src/pos/draft/draft.service';
 import { StockService } from 'src/inventory/stock/stock.service';
 import { ProductService } from 'src/product/product/product.service';
 import { ProductUnitService } from 'src/product-group/product-unit/product-unit.service';
 import { ProductPriceService } from 'src/product-group/product-price/product-price.service';
 
 import { StockEntity } from 'src/inventory/stock/entity/stock.entity';
+import { CashierEntity } from 'src/user/cashier/entity/cashier.entity';
+import { InvoiceDraftEntity } from 'src/pos/draft/entity/draft.entity';
 import { ProductEntity } from 'src/product/product/entity/product.entity';
 import { ProductUnitEntity } from 'src/product-group/product-unit/entity/product-unit.entity';
 import { ProductPriceEntity } from 'src/product-group/product-price/entity/product-price.entity';
@@ -33,6 +37,8 @@ import { ProductPriceEntity } from 'src/product-group/product-price/entity/produ
 @Controller('pos')
 export class PosControllerController {
 	constructor (
+		@Inject('DRAFT_SERVICE')
+		private readonly draftService: DraftService,
 		@Inject('STOCK_SERVICE') 
 		private readonly stockService: StockService,
 		@Inject('PRODUCT_SERVICE')
@@ -43,13 +49,14 @@ export class PosControllerController {
 		private readonly productPriceService: ProductPriceService
 	) {}
 
+	// READ - Get All Product with Search
 	@Get('/product/all')
 	async getAllProductWithSearch (
 		@Query() searchDto: SearchDto
 	): Promise<RESPONSE_I>
 	{
-		let products: any[] = [];
 		let length: number = 0;
+		let products: any[] = [];
 		const { search } = searchDto;
 		let msg: string = 'Berhasil mendapatkan daftar produk';
 
@@ -95,5 +102,18 @@ export class PosControllerController {
 		}
 
 		return RESPONSE(products, msg, HttpStatus.OK);
+	}
+
+	// READ - Get Draft Count
+	@Get('/draft/count')
+	async getDraftCount (
+		@GetUser() cashier: CashierEntity
+	): Promise<RESPONSE_I> 
+	{
+		const draft: InvoiceDraftEntity[] = await this.draftService.getAllDraftByCashierWithDeleted(cashier);
+		const data: InvoiceDraftEntity[] = draft.filter((d) => d.delete_at === null);
+		const count: number = data.length;
+
+		return RESPONSE(count, 'Berhasil menghitung jumlah draft', HttpStatus.OK);
 	}
 }
