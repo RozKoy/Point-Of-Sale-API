@@ -6,6 +6,7 @@ import { InvoiceModule } from 'src/pos/invoice/invoice.module';
 import { ProductModule } from 'src/product/product/product.module';
 import { PosControllerController } from './pos-controller.controller';
 import { InvoiceListModule } from 'src/pos/invoice-list/invoice-list.module';
+import { InvoiceDeleteModule } from 'src/pos/invoice-delete/invoice-delete.module';
 import { ProductUnitModule } from 'src/product-group/product-unit/product-unit.module';
 import { ProductPriceModule } from 'src/product-group/product-price/product-price.module';
 
@@ -16,7 +17,8 @@ const imports = [
   InvoiceModule,
   InvoiceListModule,
   ProductUnitModule,
-  ProductPriceModule
+  ProductPriceModule,
+  InvoiceDeleteModule
 ];
 const controllers = [PosControllerController];
 

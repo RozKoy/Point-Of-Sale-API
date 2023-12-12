@@ -2,6 +2,7 @@ import {
 	Get,
 	Body,
 	Query,
+	Patch,
 	Delete,
 	Inject,
 	UseGuards,
@@ -22,7 +23,8 @@ import {
 import { 
 	IDDto,
 	SearchDto, 
-	PaginationDto 
+	PaginationDto,
+	DeleteRequestDto
 } from './dto';
 
 import { DraftService } from 'src/pos/draft/draft.service';
@@ -30,6 +32,7 @@ import { StockService } from 'src/inventory/stock/stock.service';
 import { InvoiceService } from 'src/pos/invoice/invoice.service';
 import { ProductService } from 'src/product/product/product.service';
 import { InvoiceListService } from 'src/pos/invoice-list/invoice-list.service';
+import { InvoiceDeleteService } from 'src/pos/invoice-delete/invoice-delete.service';
 import { ProductUnitService } from 'src/product-group/product-unit/product-unit.service';
 import { ProductPriceService } from 'src/product-group/product-price/product-price.service';
 
@@ -62,11 +65,17 @@ export class PosControllerController {
 		@Inject('INVOICE_LIST_SERVICE')
 		private readonly invoiceListService: InvoiceListService,
 		@Inject('PRODUCT_PRICE_SERVICE') 
-		private readonly productPriceService: ProductPriceService
+		private readonly productPriceService: ProductPriceService,
+		@Inject('INVOICE_DELETE_SERVICE')
+		private readonly invoiceDeleteService: InvoiceDeleteService
 	) {}
 
 	throwNotFound (condition: boolean, msg: string): void {
 		if (condition) throw new HttpException(msg, HttpStatus.NOT_FOUND);
+	}
+
+	throwUnauthorized (condition: boolean): void {
+		if (condition) throw new HttpException([], HttpStatus.UNAUTHORIZED);
 	}
 
 	// READ - Get All Product with Search
@@ -225,6 +234,26 @@ export class PosControllerController {
 		}
 
 		return RESPONSE(data, 'Berhasil mendapatkan daftar draft', HttpStatus.OK);
+	}
+
+	// UPDATE - Set Invoice Delete Request
+	@Patch('/invoice/set-delete-request')
+	async setInvoiceDeleteRequest (
+		@Body() deleteRequestDto: DeleteRequestDto,
+		@GetUser() cashier: CashierEntity
+	): Promise<RESPONSE_I>
+	{
+		const { id, code, message } = deleteRequestDto;
+		this.throwUnauthorized(code !== cashier.code);
+
+		const invoice: InvoiceEntity | null = await this.invoiceService.getInvoiceById(id);
+		this.throwNotFound(!invoice, 'Invoice tidak dapat ditemukan');
+		this.throwUnauthorized(invoice.cashier.id !== cashier.id);
+
+		await this.invoiceDeleteService.createInvoiceDeleteRequest(message, invoice, cashier);
+		await this.invoiceService.delete(id);
+
+		return RESPONSE(true, 'Berhasil membuat permintaan hapus invoice', HttpStatus.OK);
 	}
 
 	// DELETE - Delete Draft

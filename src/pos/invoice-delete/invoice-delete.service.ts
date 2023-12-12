@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AdminEntity } from 'src/user/admin/entity/admin.entity';
 import { InvoiceDeleteEntity } from './entity/invoice-delete.entity';
 import { InvoiceEntity } from 'src/pos/invoice/entity/invoice.entity';
+import { CashierEntity } from 'src/user/cashier/entity/cashier.entity';
 
 @Injectable()
 export class InvoiceDeleteService {
@@ -12,6 +13,22 @@ export class InvoiceDeleteService {
 		@InjectRepository(InvoiceDeleteEntity)
 		private readonly invoiceDeleteRepository: Repository<InvoiceDeleteEntity>
 	) {}
+
+	// CREATE
+	async createInvoiceDeleteRequest (
+		message: string,
+		invoice: InvoiceEntity,
+		cashier: CashierEntity
+	): Promise<InvoiceDeleteEntity>
+	{
+		const newInvoiceDeleteRequest: InvoiceDeleteEntity = await this.invoiceDeleteRepository.create({
+			message,
+			invoice,
+			cashier
+		});
+
+		return await this.invoiceDeleteRepository.save(newInvoiceDeleteRequest);
+	}
 
 	// READ
 	async getAllInvoiceDelete (): Promise<InvoiceDeleteEntity[]> {

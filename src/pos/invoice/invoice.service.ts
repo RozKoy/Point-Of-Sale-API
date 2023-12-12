@@ -124,7 +124,12 @@ export class InvoiceService {
 	}
 
 	async getInvoiceById (id: string): Promise<InvoiceEntity | null> {
-		return await this.invoiceRepository.findOneBy({ id });
+		return await this.invoiceRepository.findOne({
+			where: { id },
+			relations: {
+				cashier: true
+			}
+		});
 	}
 
 	async getInvoiceByIdWithDeleted (id: string): Promise<InvoiceEntity | null> {
@@ -132,6 +137,11 @@ export class InvoiceService {
 			where: { id },
 			withDeleted: true
 		});
+	}
+
+	// DELETE
+	async delete (id: string): Promise<any> {
+		return await this.invoiceRepository.softDelete(id);
 	}
 
 	// RESTORE
