@@ -325,9 +325,11 @@ export class ProductGroupControllerController {
 
 		const newProduct: ProductEntity = await this.productService.getProductByName(name);
 
-		const productExpiredDate: ProductExpiredDateEntity | null = await this.productExpiredDateService.getExpiredAtByProductTime(newProduct, expired_at);
-		if (!productExpiredDate) {
-			await this.productExpiredDateService.createExpiredDate(author, newProduct, expired_at);
+		if (expired_at) {
+			const productExpiredDate: ProductExpiredDateEntity | null = await this.productExpiredDateService.getExpiredAtByProductTime(newProduct, expired_at);
+			if (!productExpiredDate) {
+				await this.productExpiredDateService.createExpiredDate(author, newProduct, expired_at);
+			}
 		}
 
 		const categoryArrayExists: ProductCategoryEntity[] = await this.productCategoryService.getProductCategoryByProduct(newProduct);
