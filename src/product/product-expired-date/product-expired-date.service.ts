@@ -58,6 +58,9 @@ export class ProductExpiredDateService {
 					(alias) => `${ alias } BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 20 DAY)`
 				) 
 			},
+			relations: {
+				product: true
+			},
 			order: {
 				expired_at: "DESC"
 			}
