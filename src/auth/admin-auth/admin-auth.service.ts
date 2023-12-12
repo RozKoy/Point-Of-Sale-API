@@ -2,6 +2,7 @@ import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Inject, Injectable } from '@nestjs/common';
+import { MailerService } from '@nestjs-modules/mailer';
 
 import { RefreshAccessTokenDto } from './dto';
 import { TokenExpiredError } from 'jsonwebtoken';
@@ -14,6 +15,7 @@ import { AdminEntity } from 'src/user/admin/entity/admin.entity';
 export class AdminAuthService {
 	constructor (
 		private readonly jwtService: JwtService,
+		private readonly mailerService: MailerService,
 		@Inject('ADMIN_SERVICE') private readonly adminService: AdminService,
 		@InjectRepository(AdminAuthEntity) 
 		private readonly adminAuthRepository: Repository<AdminAuthEntity>
@@ -58,7 +60,15 @@ export class AdminAuthService {
 
 		if (admin) {
 			const otp: string = await this.adminService.setOtp(email, getOTP());
-			// Send OTP
+			
+			this.mailerService.sendMail({
+				to: email,
+				from: '...@gmail.com',
+				subject: 'OTP Point of Sale',
+				text: 'OTP',
+				html: 'otp: ' + otp
+			});
+			
 			return admin;
 		}
 
