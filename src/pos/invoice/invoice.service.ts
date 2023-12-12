@@ -99,6 +99,30 @@ export class InvoiceService {
 		});
 	}
 
+	async getDailyInvoiceByCashierWithPagination (
+		cashier: CashierEntity,
+		paginationDto: PaginationDto
+	): Promise<Pagination<InvoiceEntity>> 
+	{
+		const { page, limit } = paginationDto;
+		const options: IPaginationOptions = {
+			page: page || 1,
+			limit: limit || 5
+		};
+
+		return await paginate(this.invoiceRepository, options, {
+			where: {
+				cashier: Equal(cashier.id),
+				create_at: Raw(
+					(alias) => `CAST(${ alias } as DATE) = CAST(NOW() as DATE)`
+				)
+			},
+			order: {
+				create_at: 'DESC'
+			}
+		});
+	}
+
 	async getInvoiceById (id: string): Promise<InvoiceEntity | null> {
 		return await this.invoiceRepository.findOneBy({ id });
 	}
