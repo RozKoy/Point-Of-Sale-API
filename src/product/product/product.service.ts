@@ -110,6 +110,22 @@ export class ProductService {
 		return await this.productRepository.save(product);
 	}
 
+	async plusCountProduct (
+		id: string,
+		count: number
+	): Promise<ProductEntity>
+	{
+		const product: ProductEntity = await this.productRepository.findOneBy({ id });
+
+		if (product.count >= 1000000000) {
+			product.count = 10000;
+		} else {
+			product.count += count;
+		}
+
+		return await this.productRepository.save(product);
+	}
+
 	// DELETE
 	async deleteProduct (id: string): Promise<any> {
 		return await this.productRepository.softDelete(id);

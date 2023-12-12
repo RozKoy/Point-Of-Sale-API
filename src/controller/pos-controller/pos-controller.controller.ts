@@ -1,5 +1,6 @@
 import { 
 	Get,
+	Post,
 	Body,
 	Query,
 	Patch,
@@ -24,6 +25,7 @@ import {
 	IDDto,
 	SearchDto, 
 	PaginationDto,
+	CreateInvoiceDto,
 	DeleteRequestDto
 } from './dto';
 
@@ -74,8 +76,71 @@ export class PosControllerController {
 		if (condition) throw new HttpException(msg, HttpStatus.NOT_FOUND);
 	}
 
+	throwBadRequest (condition: boolean, msg: string): void {
+		if (condition) throw new HttpException(msg, HttpStatus.BAD_REQUEST);
+	}
+
 	throwUnauthorized (condition: boolean): void {
 		if (condition) throw new HttpException([], HttpStatus.UNAUTHORIZED);
+	}
+
+	// CREATE - Create Invoice
+	@Post('/invoice/create')
+	async createInvoice (
+		@GetUser() cashier: CashierEntity,
+		@Body() createInvoiceDto: CreateInvoiceDto
+	): Promise<void>
+	{
+		const { items, discount } = createInvoiceDto;
+
+		// CHECK ITEMS
+		let sum: number = 0;
+		for (let item of items) {
+			const count: any[] = items.filter((value) => value.unit === item.unit);
+			this.throwBadRequest(count.length > 1, 'Unit tidak dapat terduplikasi');
+
+			const productUnit: ProductUnitEntity | null = await this.productUnitService.getProductUnitByIdWithDeleted(item.unit);
+			this.throwNotFound(!productUnit, 'Unit tidak dapat ditemukan');
+
+			const productPrice: ProductPriceEntity | null = await this.productPriceService.getProductPriceByUnitWithDeleted(productUnit);
+			this.throwNotFound(!productPrice, 'Harga sebuah unit tidak dapat ditemukan');
+
+			const productStock: StockEntity | null = await this.stockService.getStockByUnit(productUnit);
+			this.throwNotFound(!productStock, 'Stok produk tidak dapat ditemukan');
+
+			const sumPrice: number = parseInt(item.quantity) * parseInt(productPrice.price);
+
+			sum += sumPrice;
+		}
+
+		const invoice: InvoiceEntity = await this.invoiceService.createInvoice(sum.toString(), discount, cashier);
+
+		for (let item of items) {
+			const productUnit: ProductUnitEntity | null = await this.productUnitService.getProductUnitByIdWithDeleted(item.unit);
+			const productPrice: ProductPriceEntity | null = await this.productPriceService.getProductPriceByUnitWithDeleted(productUnit);
+			const productStock: StockEntity | null = await this.stockService.getStockByUnit(productUnit);
+
+			const sumPrice: number = parseInt(item.quantity) * parseInt(productPrice.price);
+
+			await this.invoiceListService.createInvoiceList(
+				sumPrice.toString(),
+				item.quantity,
+				invoice,
+				productUnit
+			);
+
+			const currentStock: number = parseInt(productStock.stock);
+			const pickStock: number = parseInt(item.quantity);
+			const newStock: number = currentStock - pickStock;
+
+			if (newStock < 0) {
+				await this.stockService.updateByProductUnit(currentStock * -1, productUnit);
+			} else {
+				await this.stockService.updateByProductUnit(pickStock * -1, productUnit);
+			}
+
+			await this.productService.plusCountProduct(productUnit.product.id, pickStock);
+		}
 	}
 
 	// READ - Get All Product with Search

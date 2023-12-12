@@ -41,6 +41,17 @@ export class ProductUnitService {
 		});
 	}
 
+	async getProductUnitByIdWithDeleted (id: string): Promise<ProductUnitEntity | null> {
+		return await this.productUnitRepository.findOne({
+			where: { id },
+			relations: {
+				unit: true,
+				product: true
+			},
+			withDeleted: true
+		})
+	}
+
 	async getProductUnitByProductAndUnit (
 		product: ProductEntity,
 		unit: UnitEntity

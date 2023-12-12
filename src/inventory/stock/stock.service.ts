@@ -64,15 +64,15 @@ export class StockService {
 
 	async updateByProductUnit (
 		stock: number,
-		author: AdminEntity,
-		unit: ProductUnitEntity
+		unit: ProductUnitEntity,
+		author?: AdminEntity
 	): Promise<StockEntity>
 	{
 		const productStock: StockEntity = await this.stockRepository.findOneBy({ unit: Equal(unit.id) });
 		const newStock: number = parseInt(productStock.stock) + stock;
 
-		productStock.author = author;
 		productStock.stock = newStock.toString();
+		productStock.author = author ? author : productStock.author;
 
 		return await this.stockRepository.save(productStock);
 	}

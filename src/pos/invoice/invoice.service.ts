@@ -22,6 +22,26 @@ export class InvoiceService {
 		private readonly invoiceRepository: Repository<InvoiceEntity>
 	) {}
 
+	// CREATE
+	async createInvoice (
+		sum: string,
+		discount: string,
+		cashier: CashierEntity
+	): Promise<InvoiceEntity>
+	{
+		const time: Date = new Date();
+		const code: string = 'INV-' + time.getFullYear() + time.getMonth() + time.getDate() + '-' + time.getHours() + time.getMinutes() + time.getSeconds() + time.getMilliseconds();
+
+		const newInvoice: InvoiceEntity = await this.invoiceRepository.create({
+			sum,
+			code,
+			cashier,
+			discount
+		});
+
+		return await this.invoiceRepository.save(newInvoice);
+	}
+
 	// READ
 	async getAllInvoice (
 		intervalDto: IntervalDateDto

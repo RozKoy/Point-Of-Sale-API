@@ -1,11 +1,15 @@
 import {
 	Min,
+   IsArray,
 	IsNumber,
 	IsString,
    MinLength,
 	MaxLength,
 	IsNotEmpty,
-	IsOptional
+	IsOptional,
+   ArrayNotEmpty,
+   ValidateNested,
+   IsNumberString
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 import { 
@@ -59,6 +63,36 @@ export class PaginationDto {
    @Min(1, { message: 'Batas data tidak boleh kurang dari $constraint1' })
    @Type(() => Number)
    limit: number;
+}
+
+export class ItemDto {
+   @ApiProperty({ default: 'id unit' })
+   @IsNotEmpty({ message: 'Id unit wajib diisi' })
+   @IsString({ message: 'Id unit harus berupa string' })
+   unit: string;
+
+   @ApiProperty({ default: '5' })
+   @IsString({ message: 'Banyak produk harus berupa string' })
+   @IsNumberString({}, { message: 'Banyak produk harus berupa angka string' })
+   @MaxLength(255, { message: 'Banyak produk tidak boleh melebihi $constraint1 karakter' })
+   quantity: string;
+}
+
+export class CreateInvoiceDto {
+   @ApiPropertyOptional({ default: '0' })
+   @IsOptional()
+   @IsString({ message: 'Potongan harga harus berupa string' })
+   @IsNumberString({}, { message: 'Potongan harga harus berupa angka string' })
+   @MaxLength(255, { message: 'Potongan harga tidak boleh melebihi $constraint1 karakter' })
+   discount: string;
+
+   @ApiProperty({ type: [ItemDto] })
+   @IsNotEmpty({ message: 'Daftar produk wajib diisi' })
+   @IsArray({ message: 'Daftar produk harus berupa array' })
+   @ArrayNotEmpty({ message: 'Daftar produk tidak boleh kosong' })
+   @ValidateNested({ each: true })
+   @Type(() => ItemDto)
+   items: ItemDto[];
 }
 
 export class DeleteRequestDto extends IntersectionType(IDDto, InfoDto) {}

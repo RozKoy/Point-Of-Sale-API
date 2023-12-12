@@ -228,7 +228,7 @@ export class InvoiceControllerController {
 
 		for (let temp of invoiceList) {
 			const stock: number = parseInt(temp.quantity);
-			await this.stockService.updateByProductUnit(stock, author, temp.unit);
+			await this.stockService.updateByProductUnit(stock, temp.unit, author);
 		}
 
 		await this.invoiceDeleteService.update(reqDelete.id, author);
