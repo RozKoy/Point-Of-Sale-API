@@ -89,7 +89,7 @@ export class PosControllerController {
 	async createInvoice (
 		@GetUser() cashier: CashierEntity,
 		@Body() createInvoiceDto: CreateInvoiceDto
-	): Promise<void>
+	): Promise<RESPONSE_I>
 	{
 		const { items, discount } = createInvoiceDto;
 
@@ -141,6 +141,56 @@ export class PosControllerController {
 
 			await this.productService.plusCountProduct(productUnit.product.id, pickStock);
 		}
+
+		return RESPONSE(true, 'Berhasil membuat invoice', HttpStatus.CREATED);
+	}
+
+	// CREATE - Create Draft
+	@Post('/draft/create')
+	async createDraft (
+		@GetUser() cashier: CashierEntity,
+		@Body() createInvoiceDto: CreateInvoiceDto
+	): Promise<RESPONSE_I>
+	{
+		const { items, discount } = createInvoiceDto;
+
+		// CHECK ITEMS
+		let sum: number = 0;
+		for (let item of items) {
+			const count: any[] = items.filter((value) => value.unit === item.unit);
+			this.throwBadRequest(count.length > 1, 'Unit tidak dapat terduplikasi');
+
+			const productUnit: ProductUnitEntity | null = await this.productUnitService.getProductUnitByIdWithDeleted(item.unit);
+			this.throwNotFound(!productUnit, 'Unit tidak dapat ditemukan');
+
+			const productPrice: ProductPriceEntity | null = await this.productPriceService.getProductPriceByUnitWithDeleted(productUnit);
+			this.throwNotFound(!productPrice, 'Harga sebuah unit tidak dapat ditemukan');
+
+			const sumPrice: number = parseInt(item.quantity) * parseInt(productPrice.price);
+
+			sum += sumPrice;
+		}
+
+		const invoice: InvoiceEntity = await this.invoiceService.createInvoice(sum.toString(), discount, cashier);
+
+		for (let item of items) {
+			const productUnit: ProductUnitEntity | null = await this.productUnitService.getProductUnitByIdWithDeleted(item.unit);
+			const productPrice: ProductPriceEntity | null = await this.productPriceService.getProductPriceByUnitWithDeleted(productUnit);
+
+			const sumPrice: number = parseInt(item.quantity) * parseInt(productPrice.price);
+
+			await this.invoiceListService.createInvoiceList(
+				sumPrice.toString(),
+				item.quantity,
+				invoice,
+				productUnit
+			);
+		}
+
+		await this.draftService.createDraft(invoice, cashier);
+		await this.invoiceService.delete(invoice.id);
+
+		return RESPONSE(true, 'Berhasil membuat draft', HttpStatus.CREATED);
 	}
 
 	// READ - Get All Product with Search

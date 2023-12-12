@@ -12,6 +12,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { InvoiceDraftEntity } from './entity/draft.entity';
+import { InvoiceEntity } from 'src/pos/invoice/entity/invoice.entity';
 import { CashierEntity } from 'src/user/cashier/entity/cashier.entity';
 
 import { PaginationDto } from 'src/controller/pos-controller/dto';
@@ -22,6 +23,19 @@ export class DraftService {
 		@InjectRepository(InvoiceDraftEntity)
 		private readonly invoiceDraftRepository: Repository<InvoiceDraftEntity>
 	) {}
+
+	// CREATE
+	async createDraft (
+		invoice: InvoiceEntity,
+		cashier: CashierEntity
+	): Promise<InvoiceDraftEntity>
+	{
+		const newDraft: InvoiceDraftEntity = await this.invoiceDraftRepository.create({
+			invoice, cashier
+		});
+
+		return await this.invoiceDraftRepository.save(newDraft);
+	}
 
 	// READ
 	async getDraftById (
