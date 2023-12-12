@@ -62,6 +62,21 @@ export class StockService {
 		return await this.stockRepository.save(productStock);
 	}
 
+	async updateByProductUnit (
+		stock: number,
+		author: AdminEntity,
+		unit: ProductUnitEntity
+	): Promise<StockEntity>
+	{
+		const productStock: StockEntity = await this.stockRepository.findOneBy({ unit: Equal(unit.id) });
+		const newStock: number = parseInt(productStock.stock) + stock;
+
+		productStock.author = author;
+		productStock.stock = newStock.toString();
+
+		return await this.stockRepository.save(productStock);
+	}
+
 	// DELETE
 	async delete (id: string): Promise<any> {
 		return await this.stockRepository.softDelete(id);

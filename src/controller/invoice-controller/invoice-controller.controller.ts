@@ -25,6 +25,7 @@ import {
 	IntervalDateDto 
 } from './dto';
 
+import { StockService } from 'src/inventory/stock/stock.service';
 import { InvoiceService } from 'src/pos/invoice/invoice.service';
 import { InvoiceListService } from 'src/pos/invoice-list/invoice-list.service';
 import { InvoiceDeleteService } from 'src/pos/invoice-delete/invoice-delete.service';
@@ -47,6 +48,8 @@ enum STATUS {
 @Controller('invoice')
 export class InvoiceControllerController {
 	constructor (
+		@Inject('STOCK_SERVICE')
+		private readonly stockService: StockService,
 		@Inject('INVOICE_SERVICE')
 		private readonly invoiceService: InvoiceService,
 		@Inject('INVOICE_LIST_SERVICE')
@@ -220,6 +223,13 @@ export class InvoiceControllerController {
 
 		const reqDelete: InvoiceDeleteEntity | null = await this.invoiceDeleteService.getInvoiceDeleteByInvoiceWithDeleted(invoice);
 		this.throwNotFound(!reqDelete || reqDelete?.delete_at !== null, 'Invoice tidak dapat dihapus');
+
+		const invoiceList: InvoiceListEntity[] = await this.invoiceListService.getInvoiceListByInvoiceWithDeleted(invoice);
+
+		for (let temp of invoiceList) {
+			const stock: number = parseInt(temp.quantity);
+			await this.stockService.updateByProductUnit(stock, author, temp.unit);
+		}
 
 		await this.invoiceDeleteService.update(reqDelete.id, author);
 		await this.invoiceDeleteService.delete(reqDelete.id);
