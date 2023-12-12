@@ -19,6 +19,7 @@ import {
 } from 'src/utils';
 import { CodeDto, RefreshAccessTokenDto } from './dto';
 import { CashierAuthService } from './cashier-auth.service';
+import { CashierEntity } from 'src/user/cashier/entity/cashier.entity';
 
 @ApiTags('Cashier Authentication')
 @Controller('auth/cashier')
@@ -33,9 +34,10 @@ export class CashierAuthController {
 	async login (@Body() codeDto: CodeDto): Promise<RESPONSE_I> {
 		const { code } = codeDto;
 		const response: LoginResponseI | null = await this.cashierAuthService.login(code);
+		const cashier: CashierEntity | null = await this.cashierAuthService.getCashierByCode(code);
 
-		if (response) {
-			return RESPONSE(response, 'Berhasil melakukan login', HttpStatus.OK);
+		if (response && cashier) {
+			return RESPONSE({...response, cashier}, 'Berhasil melakukan login', HttpStatus.OK);
 		}
 
 		throw new HttpException('Email atau password salah', HttpStatus.UNAUTHORIZED);

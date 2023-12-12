@@ -110,6 +110,11 @@ export class CashierAuthService {
 		return await this.cashierAuthRepository.save(makeRefreshToken);	
 	}
 
+	// READ
+	async getCashierByCode (code: string): Promise<CashierEntity | null> {
+		return await this.cashierService.getCashierByCode(code);
+	}
+
 	// DELETE
 	async deleteCashierAuth (id: string): Promise<any> {
 		return await this.cashierAuthRepository.softDelete(id);
