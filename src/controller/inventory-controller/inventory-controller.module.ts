@@ -10,7 +10,7 @@ const imports = [StockModule, StockRecordModule, ProductUnitModule];
 const controllers = [InventoryControllerController];
 
 @Module({
-  imports,
-  controllers
+	imports,
+	controllers
 })
 export class InventoryControllerModule {}

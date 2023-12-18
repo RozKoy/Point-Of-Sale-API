@@ -11,19 +11,19 @@ import { ProductUnitModule } from 'src/product-group/product-unit/product-unit.m
 import { ProductPriceModule } from 'src/product-group/product-price/product-price.module';
 
 const imports = [
-  DraftModule,
-  StockModule,
-  ProductModule, 
-  InvoiceModule,
-  InvoiceListModule,
-  ProductUnitModule,
-  ProductPriceModule,
-  InvoiceDeleteModule
-];
+	DraftModule,
+	StockModule,
+	ProductModule, 
+	InvoiceModule,
+	InvoiceListModule,
+	ProductUnitModule,
+	ProductPriceModule,
+	InvoiceDeleteModule
+	];
 const controllers = [PosControllerController];
 
 @Module({
-  imports,
-  controllers
+	imports,
+	controllers
 })
 export class PosControllerModule {}

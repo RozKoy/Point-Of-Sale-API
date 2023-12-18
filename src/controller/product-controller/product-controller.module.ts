@@ -8,7 +8,7 @@ const imports = [UnitModule, CategoryModule];
 const controllers = [ProductControllerController];
 
 @Module({
-  imports,
-  controllers
+	imports,
+	controllers
 })
 export class ProductControllerModule {}

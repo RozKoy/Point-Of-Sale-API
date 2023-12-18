@@ -5,16 +5,16 @@ import { InvoiceService } from './invoice.service';
 import { InvoiceEntity } from './entity/invoice.entity';
 
 const providers = [
-  {
-    provide: 'INVOICE_SERVICE',
-    useClass: InvoiceService
-  }
+{
+	provide: 'INVOICE_SERVICE',
+	useClass: InvoiceService
+}
 ];
 const imports = [TypeOrmModule.forFeature([InvoiceEntity])];
 
 @Module({
-  imports,
-  providers,
-  exports: providers
+	imports,
+	providers,
+	exports: providers
 })
 export class InvoiceModule {}

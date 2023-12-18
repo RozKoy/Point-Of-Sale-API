@@ -19,7 +19,7 @@ export class AdminJwtStrategy extends PassportStrategy(Strategy, 'ADMIN') {
 	constructor (
 		private configService: ConfigService,
 		@Inject('ADMIN_SERVICE') private readonly adminService: AdminService
-	) {
+		) {
 		super(configService.get('jwtStrategy'));
 	}
 
@@ -39,7 +39,7 @@ export class CashierJwtStrategy extends PassportStrategy(Strategy, 'CASHIER') {
 	constructor (
 		private configService: ConfigService,
 		@Inject('CASHIER_SERVICE') private readonly cashierService: CashierService
-	) {
+		) {
 		super(configService.get('jwtStrategy'));
 	}
 

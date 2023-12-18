@@ -11,25 +11,25 @@ import { CashierAuthEntity } from './entity/cashier-auth.entity';
 import { CashierAuthController } from './cashier-auth.controller';
 
 const imports = [
-  CashierModule,
-  TypeOrmModule.forFeature([CashierAuthEntity]),
-  JwtModule.registerAsync({ imports: [ConfigModule], useClass: JwtConfigService })
-];
+	CashierModule,
+	TypeOrmModule.forFeature([CashierAuthEntity]),
+	JwtModule.registerAsync({ imports: [ConfigModule], useClass: JwtConfigService })
+	];
 const providers = [
-  {
-    provide: 'AUTH_CASHIER_SERVICE',
-    useClass: CashierAuthService
-  },
-  {
-    provide: 'CASHIER_JWT_STRATEGY',
-    useClass: CashierJwtStrategy
-  }
+{
+	provide: 'AUTH_CASHIER_SERVICE',
+	useClass: CashierAuthService
+},
+{
+	provide: 'CASHIER_JWT_STRATEGY',
+	useClass: CashierJwtStrategy
+}
 ];
 const controllers = [CashierAuthController];
 
 @Module({
-  imports,
-  providers,
-  controllers
+	imports,
+	providers,
+	controllers
 })
 export class CashierAuthModule {}

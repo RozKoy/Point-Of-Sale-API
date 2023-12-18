@@ -12,19 +12,19 @@ import { ProductExpiredDateModule } from 'src/product/product-expired-date/produ
 import { ProductGroupControllerController } from './product-group-controller.controller';
 
 const imports = [
-  UnitModule,
-  StockModule,
-  ProductModule,
-  CategoryModule,
-  ProductUnitModule,
-  ProductPriceModule,
-  ProductCategoryModule,
-  ProductExpiredDateModule
-];
+	UnitModule,
+	StockModule,
+	ProductModule,
+	CategoryModule,
+	ProductUnitModule,
+	ProductPriceModule,
+	ProductCategoryModule,
+	ProductExpiredDateModule
+	];
 const controllers = [ProductGroupControllerController];
 
 @Module({
-  imports,
-  controllers
+	imports,
+	controllers
 })
 export class ProductGroupControllerModule {}

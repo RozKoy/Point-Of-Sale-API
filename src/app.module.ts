@@ -32,41 +32,41 @@ import { NotificationControllerModule } from './controller/notification-controll
 import { ProductGroupControllerModule } from './controller/product-group-controller/product-group-controller.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({ 
-      isGlobal: true, 
-      load: [Configuration] 
-    }), 
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useClass: TypeOrmConfig,
-    }), 
-    UnitModule, 
-    AdminModule, 
-    StockModule, 
-    DraftModule, 
-    CashierModule, 
-    InvoiceModule, 
-    ProductModule,
-    CategoryModule, 
-    AdminAuthModule, 
-    CashOnHandModule, 
-    CashierAuthModule, 
-    InvoiceListModule, 
-    ProductUnitModule,
-    StockRecordModule, 
-    ProductPriceModule, 
-    InvoiceDeleteModule, 
-    ProductCategoryModule, 
-    ProductExpiredDateModule, 
+	imports: [
+		ConfigModule.forRoot({ 
+			isGlobal: true, 
+			load: [Configuration] 
+		}), 
+		TypeOrmModule.forRootAsync({
+			imports: [ConfigModule],
+			useClass: TypeOrmConfig,
+		}), 
+		UnitModule, 
+		AdminModule, 
+		StockModule, 
+		DraftModule, 
+		CashierModule, 
+		InvoiceModule, 
+		ProductModule,
+		CategoryModule, 
+		AdminAuthModule, 
+		CashOnHandModule, 
+		CashierAuthModule, 
+		InvoiceListModule, 
+		ProductUnitModule,
+		StockRecordModule, 
+		ProductPriceModule, 
+		InvoiceDeleteModule, 
+		ProductCategoryModule, 
+		ProductExpiredDateModule, 
 
-    PosControllerModule, 
-    ProductControllerModule, 
-    CashierControllerModule, 
-    InvoiceControllerModule, 
-    InventoryControllerModule, 
-    NotificationControllerModule, 
-    ProductGroupControllerModule, 
-  ]
+		PosControllerModule, 
+		ProductControllerModule, 
+		CashierControllerModule, 
+		InvoiceControllerModule, 
+		InventoryControllerModule, 
+		NotificationControllerModule, 
+		ProductGroupControllerModule, 
+		]
 })
 export class AppModule {}

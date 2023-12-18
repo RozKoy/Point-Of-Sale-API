@@ -7,18 +7,18 @@ import { CashierController } from './cashier.controller';
 
 
 const providers = [
-  {
-    provide: 'CASHIER_SERVICE',
-    useClass: CashierService
-  }
+{
+	provide: 'CASHIER_SERVICE',
+	useClass: CashierService
+}
 ];
 const controllers = [CashierController];
 const imports = [TypeOrmModule.forFeature([CashierEntity])];
 
 @Module({
-  imports,
-  providers,
-  controllers,
-  exports: providers
+	imports,
+	providers,
+	controllers,
+	exports: providers
 })
 export class CashierModule {}

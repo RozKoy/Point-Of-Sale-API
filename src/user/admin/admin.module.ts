@@ -6,18 +6,18 @@ import { AdminEntity } from './entity/admin.entity';
 import { AdminController } from './admin.controller';
 
 const providers = [
-  {
-    provide: 'ADMIN_SERVICE',
-    useClass: AdminService
-  }
+{
+	provide: 'ADMIN_SERVICE',
+	useClass: AdminService
+}
 ];
 const controllers = [AdminController];
 const imports = [TypeOrmModule.forFeature([AdminEntity])];
 
 @Module({
-  imports,
-  providers,
-  controllers,
-  exports: providers
+	imports,
+	providers,
+	controllers,
+	exports: providers
 })
 export class AdminModule {}

@@ -10,7 +10,7 @@ const imports = [ProductModule, InvoiceDeleteModule, ProductExpiredDateModule];
 const controllers = [NotificationControllerController];
 
 @Module({
-  imports,
-  controllers
+	imports,
+	controllers
 })
 export class NotificationControllerModule {}

@@ -12,31 +12,31 @@ import { AdminAuthEntity } from './entity/admin-auth.entity';
 import { AdminAuthController } from './admin-auth.controller';
 
 const imports = [
-  AdminModule,
-  TypeOrmModule.forFeature([AdminAuthEntity]),
-  JwtModule.registerAsync({ imports: [ConfigModule], useClass: JwtConfigService }),
-  MailerModule.forRoot({ 
-    transport: { 
-      host: 'smtp.gmail.com', 
-      auth: MailerAccount
-    } 
-  })
-];
+	AdminModule,
+	TypeOrmModule.forFeature([AdminAuthEntity]),
+	JwtModule.registerAsync({ imports: [ConfigModule], useClass: JwtConfigService }),
+	MailerModule.forRoot({ 
+		transport: { 
+			host: 'smtp.gmail.com', 
+			auth: MailerAccount
+		} 
+	})
+	];
 const providers = [
-  {
-    provide: 'AUTH_ADMIN_SERVICE',
-    useClass: AdminAuthService
-  },
-  {
-    provide: 'ADMIN_JWT_STRATEGY',
-    useClass: AdminJwtStrategy
-  }
+{
+	provide: 'AUTH_ADMIN_SERVICE',
+	useClass: AdminAuthService
+},
+{
+	provide: 'ADMIN_JWT_STRATEGY',
+	useClass: AdminJwtStrategy
+}
 ];
 const controllers = [AdminAuthController];
 
 @Module({
-  imports,
-  providers,
-  controllers
+	imports,
+	providers,
+	controllers
 })
 export class AdminAuthModule {}

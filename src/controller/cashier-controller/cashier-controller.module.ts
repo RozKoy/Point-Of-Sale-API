@@ -8,7 +8,7 @@ const imports = [InvoiceModule, CashOnHandModule];
 const controllers = [CashierControllerController];
 
 @Module({
-  imports,
-  controllers
+	imports,
+	controllers
 })
 export class CashierControllerModule {}

@@ -9,14 +9,14 @@ import { InvoiceControllerController } from './invoice-controller.controller';
 
 const controllers = [InvoiceControllerController];
 const imports = [
-  StockModule,
-  InvoiceModule, 
-  InvoiceListModule,
-  InvoiceDeleteModule
-];
+	StockModule,
+	InvoiceModule, 
+	InvoiceListModule,
+	InvoiceDeleteModule
+	];
 
 @Module({
-  imports,
-  controllers
+	imports,
+	controllers
 })
 export class InvoiceControllerModule {}
