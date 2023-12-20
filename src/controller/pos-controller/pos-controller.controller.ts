@@ -261,33 +261,35 @@ export class PosControllerController {
 			meta: invoices.meta
 		};
 
-		data.items = invoices.items.map(async (value, index) => {
-			const id: string = value.id;
-			const groupInvoice: any[] = [];
-			const time: Date = value.create_at;
-			const invoice: string = value.code;
+		data.items = await Promise.all(
+			invoices.items.map(async (value, index): Promise<Record<any, any>> => {
+				const id: string = value.id;
+				const groupInvoice: any[] = [];
+				const time: Date = value.create_at;
+				const invoice: string = value.code;
 
-			const invoiceList: InvoiceListEntity[] = await this.invoiceListService.getInvoiceListByInvoiceWithDeleted(value);
-			for (let list of invoiceList) {
-				const tempData: Record<any, any> = {
-					id: list.id,
-					name: list.unit.product.name,
-					quantity: parseInt(list.quantity),
-					group: [{
-						id: list.unit.id,
-						unit: list.unit.unit.name,
-						price: Math.floor(parseInt(list.sum) / parseInt(list.quantity))
-					}]
-				};
-				groupInvoice.push(tempData);
-			}
-			return {
-				id,
-				time,
-				invoice,
-				groupInvoice
-			}
-		});
+				const invoiceList: InvoiceListEntity[] = await this.invoiceListService.getInvoiceListByInvoiceWithDeleted(value);
+				for (let list of invoiceList) {
+					const tempData: Record<any, any> = {
+						id: list.id,
+						name: list.unit.product.name,
+						quantity: parseInt(list.quantity),
+						group: [{
+							id: list.unit.id,
+							unit: list.unit.unit.name,
+							price: Math.floor(parseInt(list.sum) / parseInt(list.quantity))
+						}]
+					};
+					groupInvoice.push(tempData);
+				}
+				return {
+					id,
+					time,
+					invoice,
+					groupInvoice
+				}
+			})
+		);
 
 		return RESPONSE(data, 'Berhasil mendapatkan daftar riwayat penjualan', HttpStatus.OK);
 	}
