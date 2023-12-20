@@ -190,12 +190,24 @@ export class InvoiceControllerController {
 	): Promise<RESPONSE_I> 
 	{
 		const { id } = idDto;
+		let status: STATUS = STATUS.SUCCESS;
 
-		const invoice: any | null = await this.invoiceService.getInvoiceById(id);
+		const invoice: any | null = await this.invoiceService.getInvoiceByIdWithDeleted(id);
 		this.throwNotFound(!invoice, 'Invoice tidak dapat ditemukan');
+
+		if (invoice.delete_at) {
+			const reqDelete: InvoiceDeleteEntity | null = await this.invoiceDeleteService.getInvoiceDeleteByInvoiceWithDeleted(invoice);
+
+			if (!reqDelete?.delete_at) {
+				status = STATUS.PENDING;
+			} else if (reqDelete?.delete_at) {
+				status = STATUS.DELETED;
+			} 
+		}
 
 		const invoiceList: Pagination<InvoiceListEntity> = await this.invoiceListService.getInvoiceListByInvoiceWithDeletedAndPagination(invoice, paginationDto);
 
+		invoice.status = status;
 		invoice.products = [];
 		for (let temp of invoiceList.items) {
 			const sum: number = parseInt(temp.sum);
