@@ -74,8 +74,7 @@ export class DraftService {
 			},
 			order: {
 				create_at: 'DESC'
-			},
-			withDeleted: true
+			}
 		})
 	}
 
