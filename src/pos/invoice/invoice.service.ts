@@ -1,7 +1,8 @@
 import { 
 	Raw,
 	Equal,
-	Repository 
+	Between,
+	Repository
 } from 'typeorm';
 import {
 	paginate,
@@ -52,9 +53,7 @@ export class InvoiceService {
 		if (to && from) {
 			return await this.invoiceRepository.find({
 				where: {
-					create_at: Raw(
-						(alias) => `CAST('${ alias }' as DATE) BETWEEN CAST('${ from }' as DATE) AND CAST('${ to }' as DATE)`
-					)
+					create_at: Between(new Date(from), new Date(to)),
 				},
 				order: {
 					create_at: "DESC"
@@ -86,9 +85,7 @@ export class InvoiceService {
 		if (from && to) {
 			return await paginate(this.invoiceRepository, options, {
 				where: {
-					create_at: Raw(
-						(alias) => `CAST(${ alias } as DATE) BETWEEN CAST(${ from } as DATE) AND CAST(${ to } as DATE)`
-					)
+					create_at: Between(new Date(from), new Date(to)),
 				},
 				order: {
 					create_at: "DESC"
