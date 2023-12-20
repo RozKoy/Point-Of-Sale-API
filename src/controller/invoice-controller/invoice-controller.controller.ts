@@ -71,6 +71,9 @@ export class InvoiceControllerController {
 		const { to, from } = intervalDto;
 		const invoices: InvoiceEntity[] = await this.invoiceService.getAllInvoice(intervalDto);
 
+		let to_date: Date | null = null;
+		let from_date: Date | null = null;
+
 		let income: number = 0;
 		let discount: number = 0;
 		let product_count: number = 0;
@@ -78,6 +81,11 @@ export class InvoiceControllerController {
 		let products: Record<any, any> = {};
 		for (let temp of invoices) {
 			if (!temp.delete_at) {
+				if (!to_date) {
+					to_date = temp.create_at;
+				}
+				from_date = temp.create_at;
+
 				invoice_success++;
 				income += parseInt(temp.sum);
 				discount += parseInt(temp.discount);
@@ -107,8 +115,10 @@ export class InvoiceControllerController {
 
 		const data: Record<any, any> = {
 			income,
+			to_date,
 			discount,
 			products,
+			from_date,
 			product_count,
 			invoice_count,
 			invoice_failed,
@@ -116,8 +126,6 @@ export class InvoiceControllerController {
 			invoice_success,
 			to_date_req: to,
 			from_date_req: from,
-			to_date: invoices[0].create_at,
-			from_date: invoices[invoice_count - 1].create_at
 		};
 
 		return RESPONSE(data, 'Berhasil mendapatkan laporan', HttpStatus.OK);

@@ -53,7 +53,7 @@ export class InvoiceService {
 			return await this.invoiceRepository.find({
 				where: {
 					create_at: Raw(
-						(alias) => `CAST(${ alias } as DATE) BETWEEN CAST(${ from } as DATE) AND CAST(${ to } as DATE)`
+						(alias) => `CAST('${ alias }' as DATE) BETWEEN CAST('${ from }' as DATE) AND CAST('${ to }' as DATE)`
 					)
 				},
 				order: {
