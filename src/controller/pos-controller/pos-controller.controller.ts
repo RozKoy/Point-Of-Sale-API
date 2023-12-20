@@ -320,35 +320,37 @@ export class PosControllerController {
 			meta: draft.meta
 		};
 
-		for (let temp of draft.items) {
-			if (temp.delete_at === null) {
-				const id: string = temp.id;
-				const groupDraft: any[] = [];
-				const time: Date = temp.create_at;
-				const invoice: string = temp.invoice.code;
+		await Promise.all(
+			draft.items.map(async (temp, index): Promise<void> => {
+				if (temp.delete_at === null) {
+					const id: string = temp.id;
+					const groupDraft: any[] = [];
+					const time: Date = temp.create_at;
+					const invoice: string = temp.invoice.code;
 
-				const invoiceList: InvoiceListEntity[] = await this.invoiceListService.getInvoiceListByInvoiceWithDeleted(temp.invoice);
-				for (let list of invoiceList) {
-					const tempData: Record<any, any> = {
-						id: list.id,
-						name: list.unit.product.name,
-						quantity: parseInt(list.quantity),
-						group: [{
-							id: list.unit.id,
-							unit: list.unit.unit.name,
-							price: Math.floor(parseInt(list.sum) / parseInt(list.quantity))
-						}]
-					};
-					groupDraft.push(tempData);
+					const invoiceList: InvoiceListEntity[] = await this.invoiceListService.getInvoiceListByInvoiceWithDeleted(temp.invoice);
+					for (let list of invoiceList) {
+						const tempData: Record<any, any> = {
+							id: list.id,
+							name: list.unit.product.name,
+							quantity: parseInt(list.quantity),
+							group: [{
+								id: list.unit.id,
+								unit: list.unit.unit.name,
+								price: Math.floor(parseInt(list.sum) / parseInt(list.quantity))
+							}]
+						};
+						groupDraft.push(tempData);
+					}
+					data.items.push({
+						id,
+						time,
+						invoice,
+						groupDraft
+					});
 				}
-				data.items.push({
-					id,
-					time,
-					invoice,
-					groupDraft
-				});
-			}
-		}
+			})
+		);
 
 		return RESPONSE(data, 'Berhasil mendapatkan daftar draft', HttpStatus.OK);
 	}
