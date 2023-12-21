@@ -139,47 +139,82 @@ export class InvoiceControllerController {
 	): Promise<RESPONSE_I>
 	{
 		const { to, from } = intervalDto;
-		const invoices: any = await this.invoiceService.getAllInvoiceWithDeleted(intervalDto, paginationDto);
-		
-		let length: number = invoices.items.length;
-		if (length !== 0) {
-			invoices.to_date_req = to;
-			invoices.from_date_req = from;
-			invoices.to_date = invoices.items[0].create_at;
-			invoices.from_date = invoices.items[length - 1].create_at;
-			for (let i = 0; i < length; i++) {
-				let status: STATUS = STATUS.SUCCESS;
-				const invoice: InvoiceEntity = invoices.items[i];
+		const { page, limit } = paginationDto;
 
-				if (invoice.delete_at) {
-					const reqDelete: InvoiceDeleteEntity | null = await this.invoiceDeleteService.getInvoiceDeleteByInvoiceWithDeleted(invoice);
-
-					if (!reqDelete?.delete_at) {
-						status = STATUS.PENDING;
-					} else if (reqDelete?.delete_at) {
-						status = STATUS.DELETED;
-					} else {
-						invoices.items.splice(i, 1);
-						i--;
-						length--;
-						continue;
-					}
-				}
-				invoices.items[i].status = status;
-				
-				invoices.items[i].product = 0;
-				invoices.items[i].sum = parseInt(invoice.sum);
-
-				const invoiceList: InvoiceListEntity[] = await this.invoiceListService.getInvoiceListByInvoice(invoice);
-
-				for (let temp of invoiceList) {
-					const quantity: number = parseInt(temp.quantity);
-					invoices.items[i].product += quantity;
-				}
-			}
+		const invoices: InvoiceEntity[] = await this.invoiceService.getAllInvoice(intervalDto);
+		let data: Record<any, any> = {
+			items: [],
+			meta: {
+				itemCount: 0,
+				totalPages: 1,
+				totalItems: 0,
+				currentPage: page | 1,
+				itemsPerPage: limit | 5,
+			},
+			to_date_req: to,
+			from_date_req: from
 		}
 
-		return RESPONSE(invoices, 'Berhasil mendapatkan daftar invoice', HttpStatus.OK);
+		await Promise.all(
+			invoices.map(async (item): Promise<any> => {
+				let status: STATUS = STATUS.SUCCESS;
+				if (item.delete_at) {
+					const reqDelete: InvoiceDeleteEntity | null = await this.invoiceDeleteService.getInvoiceDeleteByInvoiceWithDeleted(item);
+					if (!reqDelete) {
+						return;
+					} else if (!reqDelete.delete_at) {
+						status = STATUS.PENDING;
+					} else {
+						status = STATUS.DELETED;
+					}
+				}
+
+				let product: number = 0;
+
+				const invoiceList: InvoiceListEntity[] = await this.invoiceListService.getInvoiceListByInvoice(item);
+
+				for (let temp of invoiceList) {
+					product += parseInt(temp.quantity);
+				}
+
+				const length: number = data.items.length;
+				data.items[length] = {
+					status,
+					product,
+					id: item.id,
+					code: item.code,
+					discount: item.discount,
+					sum: parseInt(item.sum),
+					create_at: item.create_at,
+					update_at: item.update_at,
+					delete_at: item.delete_at,
+				}
+			})
+		);
+
+		const length: number = data.items.length;
+
+		data.meta.itemCount = length;
+
+		if (!data.items[Math.floor(length / data.meta.itemsPerPage)]) {
+			data.meta.totalPages = Math.floor(length / data.meta.itemsPerPage) - 1;
+		} else {
+			data.meta.totalPages = Math.floor(length / data.meta.itemsPerPage);
+		}
+
+		const start: number = (data.meta.currentPage - 1) * data.meta.itemsPerPage;
+		const end: number = start + data.meta.itemsPerPage;
+		
+		data.items = data.items.slice(start, end);
+
+		data.meta.totalItems = data.items.length;
+
+		if (data.items.length) {
+			data.to_date = data.items[0].create_at;
+			data.from_date = data.items[data.items.length - 1].create_at;
+		}
+
+		return RESPONSE(data, 'Berhasil mendapatkan daftar invoice', HttpStatus.OK);
 	}
 
 	// READ - Get Invoice Detail

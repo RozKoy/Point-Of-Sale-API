@@ -70,38 +70,6 @@ export class InvoiceService {
 		});
 	}
 
-	async getAllInvoiceWithDeleted (
-		intervalDto: IntervalDateDto,
-		paginationDto: PaginationDto
-	): Promise<Pagination<InvoiceEntity>> 
-	{
-		const { to, from } = intervalDto;
-		const { page, limit } = paginationDto;
-		const options: IPaginationOptions = {
-			page: page || 1,
-			limit: limit || 5
-		};
-
-		if (from && to) {
-			return await paginate(this.invoiceRepository, options, {
-				where: {
-					create_at: Between(new Date(from), new Date(to)),
-				},
-				order: {
-					create_at: "DESC"
-				},
-				withDeleted: true
-			});
-		}
-
-		return await paginate(this.invoiceRepository, options, {
-			order: {
-				create_at: "DESC"
-			},
-			withDeleted: true
-		});
-	}
-
 	async getDailyInvoiceByCashier (
 		cashier: CashierEntity
 	): Promise<InvoiceEntity[]> 
