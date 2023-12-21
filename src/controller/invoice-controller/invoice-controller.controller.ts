@@ -192,6 +192,16 @@ export class InvoiceControllerController {
 			})
 		);
 
+		data.items.sort((a, b) => {
+			let da = new Date(a.create_at), db = new Date(b.create_at);
+			if (db > da) {
+				return 1;
+			} else if (db < da) {
+				return -1;
+			}
+			return 0;
+		});
+
 		const length: number = data.items.length;
 
 		data.meta.itemCount = length;
