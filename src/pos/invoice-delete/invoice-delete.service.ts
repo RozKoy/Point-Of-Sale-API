@@ -32,7 +32,13 @@ export class InvoiceDeleteService {
 
 	// READ
 	async getAllInvoiceDelete (): Promise<InvoiceDeleteEntity[]> {
-		return await this.invoiceDeleteRepository.find({ relations: { invoice: true } });
+		return await this.invoiceDeleteRepository.find({ 
+			relations: { invoice: true },
+			order: {
+				create_at: 'DESC'
+			},
+			withDeleted: true
+		});
 	}
 
 	async getInvoiceDeleteByInvoiceWithDeleted (

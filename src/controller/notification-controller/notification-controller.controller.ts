@@ -36,11 +36,17 @@ export class NotificationControllerController {
 		private readonly productExpiredAtService: ProductExpiredDateService
 	) {}
 
+	async getInvoiceDeleteList (): Promise<InvoiceDeleteEntity[]> {
+		const invoiceDelete: InvoiceDeleteEntity[] = await this.invoiceDeleteService.getAllInvoiceDelete();
+		const data: InvoiceDeleteEntity[] = invoiceDelete.filter((invoice) => invoice.delete_at === null);
+		return data;
+	}
+
 	// READ - Get Count of Notification
 	@Get('/count')
 	async getCountNotification (): Promise<RESPONSE_I> {
 		const products: ProductEntity[] = await this.productService.getAllProduct();
-		const invoiceDelete: InvoiceDeleteEntity[] = await this.invoiceDeleteService.getAllInvoiceDelete();
+		const invoiceDelete: InvoiceDeleteEntity[] = await this.getInvoiceDeleteList();
 		const expiredProduct: ProductExpiredDateEntity[] = [];
 		for (let product of products) {
 			const expiredProductExists: ProductExpiredDateEntity[] = await this.productExpiredAtService.getExpiredAtByProductAndTime(product);
@@ -58,7 +64,7 @@ export class NotificationControllerController {
 	// READ - Get All Invoice Delete Request
 	@Get('/invoice-delete-request')
 	async getInvoiceDeleteRequest (): Promise<RESPONSE_I> {
-		const invoiceDelete: InvoiceDeleteEntity[] = await this.invoiceDeleteService.getAllInvoiceDelete();
+		const invoiceDelete: InvoiceDeleteEntity[] = await this.getInvoiceDeleteList();
 
 		return RESPONSE(invoiceDelete, 'Berhasil mendapatkan permintaan hapus invoice', HttpStatus.OK);
 	}
