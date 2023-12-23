@@ -22,52 +22,52 @@
 	<!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
 		[![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-		## Description
+## Description
 
-		[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-		## Installation
+## Installation
 
-		```bash
-		$ npm install
-		```
+```bash
+$ npm install
+```
 
-		## Running the app
+## Running the app
 
-		```bash
-		# development
-		$ npm run start
+```bash
+# development
+$ npm run start
 
-		# watch mode
-		$ npm run start:dev
+# watch mode
+$ npm run start:dev
 
-		# production mode
-		$ npm run start:prod
-		```
+# production mode
+$ npm run start:prod
+```
 
-		## Test
+## Test
 
-		```bash
-		# unit tests
-		$ npm run test
+```bash
+# unit tests
+$ npm run test
 
-		# e2e tests
-		$ npm run test:e2e
+# e2e tests
+$ npm run test:e2e
 
-		# test coverage
-		$ npm run test:cov
-		```
+# test coverage
+$ npm run test:cov
+```
 
-		## Support
+## Support
 
-		Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
-		## Stay in touch
+## Stay in touch
 
-		- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-		- Website - [https://nestjs.com](https://nestjs.com/)
-		- Twitter - [@nestframework](https://twitter.com/nestframework)
+- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
+- Website - [https://nestjs.com](https://nestjs.com/)
+- Twitter - [@nestframework](https://twitter.com/nestframework)
 
-		## License
+## License
 
-		Nest is [MIT licensed](LICENSE).
+Nest is [MIT licensed](LICENSE).
